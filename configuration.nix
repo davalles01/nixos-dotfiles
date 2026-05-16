@@ -1,0 +1,123 @@
+{ config, lib, pkgs, ... }:
+
+{
+  imports =
+    [
+      ./hardware-configuration.nix
+    ];
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.blacklistedKernelModules = [ "ucsi_acpi" ];
+
+  # Networking 
+
+  networking.hostName = "nixos";
+  networking.networkmanager.enable = true;
+  
+  # Bluetooth
+
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.dbus.enable = true;
+  security.rtkit.enable = true;
+
+  time.timeZone = "Europe/Madrid";
+
+  console = {
+	enable = true;
+	font = "Lat2-Terminus16";
+	keyMap = "es";
+  };
+
+  # Greeter: SYSC-GREET
+
+  services.sysc-greet = {
+    enable = true;
+    compositor = "hyprland"; 
+  };
+
+  # Set initial session for auto-login
+  services.sysc-greet.settings.initial_session = {
+    command = "Hyprland";
+    user = "dani";
+  }; 
+
+  # Hyprland setup
+
+  programs.hyprland = {
+	enable = true;
+	xwayland.enable = true;
+  };
+
+  security.polkit.enable = true;
+
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [
+	pkgs.xdg-desktop-portal-hyprland
+  ];
+
+  services.gnome.gnome-keyring.enable = true;
+
+  # Solaar Dependencies
+
+  hardware.logitech.wireless.enable = true;
+  boot.kernelModules = [ "uinput" ];
+
+  # Audio setup
+
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+
+	wireplumber.enable = true;
+  };
+
+  services.libinput.enable = true;
+
+  # Users
+
+  users.users.dani = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    packages = with pkgs; [
+      tree
+    ];
+  };
+
+  programs.firefox.enable = true;
+
+  services.gvfs.enable = true;
+  services.tumbler.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+	kitty
+	hyprpaper
+	hyprlock 
+	hypridle
+	hyprshot
+	fastfetch
+	xfce.thunar
+	solaar
+    git
+	rofi
+	wl-clipboard
+	brightnessctl 
+	playerctl 
+	libnotify
+	slurp 
+  ];
+
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+  ];
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  system.stateVersion = "25.11";
+
+}
+
