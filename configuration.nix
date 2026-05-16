@@ -32,18 +32,9 @@
 	keyMap = "es";
   };
 
-  # Greeter: SYSC-GREET
+  # Ly
 
-  services.sysc-greet = {
-    enable = true;
-    compositor = "hyprland"; 
-  };
-
-  # Set initial session for auto-login
-  services.sysc-greet.settings.initial_session = {
-    command = "Hyprland";
-    user = "dani";
-  }; 
+  services.displayManager.ly.enable = true;
 
   # Hyprland setup
 
@@ -117,6 +108,7 @@
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   system.stateVersion = "25.11";
 
 }
