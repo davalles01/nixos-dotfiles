@@ -16,8 +16,13 @@ in
 {
   home.username = "dani";
   home.homeDirectory = "/home/dani";
-  programs.git.enable = true;
   home.stateVersion = "25.11";
+
+  programs.git = {
+    enable = true;
+    userName = "Dani Valles";
+    userEmail = "vallesdaniel7@gmail.com";
+  };
 
   gtk = {
     enable = true;
