@@ -116,6 +116,8 @@
 
   ];
 
+  environment.pathsToLink = [ "/libexec" ];
+
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
