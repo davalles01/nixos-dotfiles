@@ -11,6 +11,8 @@
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.blacklistedKernelModules = [ "ucsi_acpi" ];
 
+  nixpkgs.config.allowUnfree = true;
+
   # Networking 
 
   networking.hostName = "nixos";
@@ -78,10 +80,17 @@
     ];
   };
 
-  programs.firefox.enable = true;
+	programs.firefox = {
+	  enable = true;
+	  nativeMessagingHosts.packages = with pkgs; [
+		firefoxpwa
+	  ];
+	};
 
   services.gvfs.enable = true;
   services.tumbler.enable = true;
+
+  services.fprintd.enable = true;
 
   environment.systemPackages = with pkgs; [
     vim
@@ -101,6 +110,7 @@
 	playerctl 
 	libnotify
 	slurp 
+	fprintd
   ];
 
   fonts.packages = with pkgs; [

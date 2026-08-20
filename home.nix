@@ -20,8 +20,8 @@ in
 
   programs.git = {
     enable = true;
-    userName = "Dani Valles";
-    userEmail = "vallesdaniel7@gmail.com";
+    settings.user.name = "Dani Valles";
+    settings.user.email = "vallesdaniel7@gmail.com";
   };
 
   gtk = {
@@ -86,6 +86,10 @@ in
 	xfce.exo
 
 	blueman
+
+	qview
+
+	firefoxpwa
   ];
 
   home.pointerCursor = {
