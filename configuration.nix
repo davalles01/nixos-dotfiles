@@ -110,7 +110,10 @@
 	playerctl 
 	libnotify
 	slurp 
+	
 	fprintd
+	polkit_gnome
+
   ];
 
   fonts.packages = with pkgs; [
