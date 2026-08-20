@@ -90,7 +90,13 @@
   services.gvfs.enable = true;
   services.tumbler.enable = true;
 
+  # Fprintd
   services.fprintd.enable = true;
+
+  security.pam.services.sudo.rules.auth.fprintd.order =
+  config.security.pam.services.sudo.rules.auth.unix.order + 50;
+
+  security.pam.services.ly.fprintAuth = false;
 
   environment.systemPackages = with pkgs; [
     vim
