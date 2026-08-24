@@ -13,6 +13,11 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # Battery
+
+  services.upower.enable = true;
+
+
   # Networking 
 
   networking.hostName = "nixos";

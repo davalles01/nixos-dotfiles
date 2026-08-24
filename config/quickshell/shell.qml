@@ -1,22 +1,82 @@
-//@ pragma UseQApplication
-//@ pragma Env QT_QPA_PLATFORMTHEME=gtk3
-//@ pragma Env QS_NO_RELOAD_POPUP=1
-//@ pragma Env QSG_RENDER_LOOP=threaded
-//@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
-
-import Quickshell
-import Quickshell.Io
 import QtQuick
-import "bar"
-import "notifications"
-import "wallpaper"
-import "media"
-import "osd"
+import QtQuick.Layouts
+import Quickshell
+import "components"
+import "components/Popups"
+import "services"
 
-Scope {
-  Bar { theme: ts.theme }
-  NotificationPopup { theme: ts.theme }
-  WallpaperManager { theme: ts.theme }
-  MediaControl { theme: ts.theme }
-  OSD { theme: ts.theme }
+PanelWindow {
+    id: topBar
+    anchors {
+        top: true
+        left: true
+        right: true
+    }
+    implicitHeight: 40
+    color: "#00000000"
+
+    // Servicios independientes
+    WifiService { id: wifiService }
+    BluetoothService { id: btService }
+
+    // Popup de Ajustes Generales
+    SettingsMenu {
+		id: settingsPopup
+		wifiSvc: wifiService
+		btSvc: btService
+	}
+
+	// Popups de Wifi y Bluetooth 
+	NetworkSettingsPopup {
+		id: networkPopup
+		wifiSvc: wifiService
+	}
+
+	BluetoothSettingsPopup {
+		id: bluetoothPopup
+		btSvc: btService
+	}
+
+    // Lado Izquierdo: Workspaces y MediaWidget
+    RowLayout {
+        anchors.left: parent.left
+        anchors.leftMargin: 12
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 16
+
+        Workspaces {
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        MediaWidget {
+            Layout.alignment: Qt.AlignVCenter
+        }
+    }
+
+    // Centro: Reloj
+    ClockWidget {
+        anchors.centerIn: parent
+    }
+
+    // Lado Derecho: Controles del sistema
+    RowLayout {
+        anchors.right: parent.right
+        anchors.rightMargin: 12
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 12
+
+        NetworkBluetoothWidget {
+            Layout.alignment: Qt.AlignVCenter
+            wifiSvc: wifiService
+            btSvc: btService
+			networkPopup: networkPopup
+			bluetoothPopup: bluetoothPopup
+        }
+        BrightnessVolumeWidget {
+            Layout.alignment: Qt.AlignVCenter
+        }
+        PowerSettingsWidget {
+            Layout.alignment: Qt.AlignVCenter
+        }
+    }
 }
