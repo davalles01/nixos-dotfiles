@@ -32,22 +32,39 @@ PanelWindow {
     Process { id: setVolProc }
     Process { id: setBrightnessProc }
 
-	// --- PROCESO DE CAMBIO DE MODO (JUEGO - NORMAL) ---
-	Process {
-		id: gameModeProc
+    // --- PROCESO MODO NOCHE (SHADER LUZ AZUL) ---
+    Process {
+        id: nightModeProc
 
-		function toggle(enableGameMode) {
-			let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"
-			let targetFile = enableGameMode 
-				? "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig-gamemode.conf" 
-				: "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig.conf"
+        function toggle(enableNightMode) {
+            let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/shaders.conf"
+            let shaderPath = "$HOME/nixos-dotfiles/config/hypr/conf/shaders/blue-light-filter.frag"
+			let content = enableNightMode ? `decoration { 
+				screen_shader = ${shaderPath} 
+			}` : ""
+            
+            let cmd = `echo '${content}' > ${confFile} && hyprctl reload`
+            command = ["bash", "-c", cmd]
+            running = true
+        }
+    }
 
-			let cmd = `sed -i 's|^source = .*|source = ${targetFile}|' ${confFile} && hyprctl reload`
-			
-			command = ["bash", "-c", cmd]
-			running = true
-		}
-	}
+    // --- PROCESO DE CAMBIO DE MODO (JUEGO - NORMAL) ---
+    Process {
+        id: gameModeProc
+
+        function toggle(enableGameMode) {
+            let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"
+            let targetFile = enableGameMode 
+                ? "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig-gamemode.conf" 
+                : "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig.conf"
+
+            let cmd = `sed -i 's|^source = .*|source = ${targetFile}|' ${confFile} && hyprctl reload`
+            
+            command = ["bash", "-c", cmd]
+            running = true
+        }
+    }
 
     // Proceso para sincronizar volumen y estado Mute
     Process {
@@ -196,106 +213,106 @@ PanelWindow {
                 }
             }
 
-            // --- RECUADROS PRINCIPALES ---
+            // --- RECUADROS PRINCIPALES (GRID 2 COLUMNAS) ---
             GridLayout {
-				columns: 2
-				columnSpacing: 10
-				rowSpacing: 10
-				Layout.fillWidth: true
+                columns: 2
+                columnSpacing: 10
+                rowSpacing: 10
+                Layout.fillWidth: true
 
-				// Tarjeta Wi-Fi
-				Rectangle {
-					Layout.fillWidth: true
-					Layout.preferredHeight: 65
-					color: root.wifiSvc?.powered ? "#e86a58" : "#313244"
-					radius: 18
+                // Tarjeta Wi-Fi
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 65
+                    color: root.wifiSvc?.powered ? "#e86a58" : "#313244"
+                    radius: 18
 
-					MouseArea {
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: {
-							if (root.wifiSvc) root.wifiSvc.toggleWifi()
-						}
-					}
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (root.wifiSvc) root.wifiSvc.toggleWifi()
+                        }
+                    }
 
-					RowLayout {
-						anchors.fill: parent
-						anchors.margins: 12
-						spacing: 10
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 10
 
-						Text {
-							text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? "󰤨" : "󰤟") : "󰤮"
-							font.pixelSize: 22
-							color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
-						}
+                        Text {
+                            text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? "󰤨" : "󰤟") : "󰤮"
+                            font.pixelSize: 22
+                            color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
+                        }
 
-						ColumnLayout {
-							Layout.fillWidth: true
-							spacing: 0
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
 
-							Text {
-								text: "Wi-Fi"
-								font.bold: true
-								color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
-							}
+                            Text {
+                                text: "Wi-Fi"
+                                font.bold: true
+                                color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
+                            }
 
-							Text {
-								text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? root.wifiSvc?.ssid : "Desconectado") : "Apagado"
-								color: root.wifiSvc?.powered ? "#313244" : "#a6adc8"
-								font.pixelSize: 11
-								elide: Text.ElideRight
-								Layout.fillWidth: true
-							}
-						}
-					}
-				}
+                            Text {
+                                text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? root.wifiSvc?.ssid : "Desconectado") : "Apagado"
+                                color: root.wifiSvc?.powered ? "#313244" : "#a6adc8"
+                                font.pixelSize: 11
+                                elide: Text.ElideRight
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
 
-				// Tarjeta Bluetooth
-				Rectangle {
-					Layout.fillWidth: true
-					Layout.preferredHeight: 65
-					color: root.btSvc?.powered ? "#89b4fa" : "#313244"
-					radius: 18
+                // Tarjeta Bluetooth
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 65
+                    color: root.btSvc?.powered ? "#89b4fa" : "#313244"
+                    radius: 18
 
-					MouseArea {
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: {
-							if (root.btSvc) root.btSvc.toggleBt()
-						}
-					}
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (root.btSvc) root.btSvc.toggleBt()
+                        }
+                    }
 
-					RowLayout {
-						anchors.fill: parent
-						anchors.margins: 12
-						spacing: 10
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 10
 
-						Text {
-							text: root.btSvc?.powered ? (root.btSvc?.connected ? "󰂱" : "󰂯") : "󰂲"
-							font.pixelSize: 22
-							color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
-						}
+                        Text {
+                            text: root.btSvc?.powered ? (root.btSvc?.connected ? "󰂱" : "󰂯") : "󰂲"
+                            font.pixelSize: 22
+                            color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
+                        }
 
-						ColumnLayout {
-							Layout.fillWidth: true
-							spacing: 0
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
 
-							Text {
-								text: "Bluetooth"
-								font.bold: true
-								color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
-							}
+                            Text {
+                                text: "Bluetooth"
+                                font.bold: true
+                                color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
+                            }
 
-							Text {
-								text: root.btSvc?.powered ? (root.btSvc?.connected ? root.btSvc?.deviceName : "Desconectado") : "Apagado"
-								color: root.btSvc?.powered ? "#313244" : "#a6adc8"
-								font.pixelSize: 11
-								elide: Text.ElideRight
-								Layout.fillWidth: true
-							}
-						}
-					}
-				}
+                            Text {
+                                text: root.btSvc?.powered ? (root.btSvc?.connected ? root.btSvc?.deviceName : "Desconectado") : "Apagado"
+                                color: root.btSvc?.powered ? "#313244" : "#a6adc8"
+                                font.pixelSize: 11
+                                elide: Text.ElideRight
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
 
                 // Do Not Disturb
                 Rectangle {
@@ -317,74 +334,125 @@ PanelWindow {
                 }
 
                 // Gaming Mode 
-				Rectangle {
-					id: gameModeWidget
-					Layout.fillWidth: true
-					Layout.preferredHeight: 65
-					color: isGameMode ? "#313244" : "#1e1e2e"
-					radius: 18
+                Rectangle {
+                    id: gameModeWidget
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 65
+                    color: isGameMode ? "#313244" : "#1e1e2e"
+                    radius: 18
 
-					border.color: isGameMode ? "#a6e3a1" : "transparent"
-					border.width: 1
+                    border.color: isGameMode ? "#a6e3a1" : "transparent"
+                    border.width: 1
 
-					property bool isGameMode: false
+                    property bool isGameMode: false
 
-					RowLayout {
-						anchors.fill: parent
-						anchors.margins: 12
-						spacing: 10
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 10
 
-						Text { 
-							text: "󰓅"
-							font.pixelSize: 22
-							color: gameModeWidget.isGameMode ? "#a6e3a1" : "#cdd6f4"
-						}
+                        Text { 
+                            text: "󰓅"
+                            font.pixelSize: 22
+                            color: gameModeWidget.isGameMode ? "#a6e3a1" : "#cdd6f4"
+                        }
 
-						Column {
-							Text { 
-								text: "Gaming Mode"
-								font.bold: true
-								color: "#cdd6f4" 
-							}
-							Text { 
-								text: gameModeWidget.isGameMode ? "Performance" : "Balanced"
-								color: gameModeWidget.isGameMode ? "#a6e3a1" : "#a6adc8"
-								font.pixelSize: 11 
-							}
-						}
-					}
+                        Column {
+                            Text { 
+                                text: "Gaming"
+                                font.bold: true
+                                color: "#cdd6f4" 
+                            }
+                            Text { 
+                                text: gameModeWidget.isGameMode ? "Perf." : "Bal."
+                                color: gameModeWidget.isGameMode ? "#a6e3a1" : "#a6adc8"
+                                font.pixelSize: 11 
+                            }
+                        }
+                    }
 
-					MouseArea { 
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: {
-							gameModeWidget.isGameMode = !gameModeWidget.isGameMode
-							
-							// Llamada simple a la lógica superior
-							gameModeProc.toggle(gameModeWidget.isGameMode)
-						}
-					}
-				}
-            }
-
-            // --- SCREENSHOT ---
-            Rectangle {
-                Layout.fillWidth: true; Layout.preferredHeight: 60
-                color: "#1e1e2e"; radius: 18
-                RowLayout {
-                    anchors.fill: parent; anchors.margins: 14; spacing: 12
-                    Text { text: "󰄄"; font.pixelSize: 22; color: "#cdd6f4" }
-                    Column {
-                        Text { text: "Screenshot"; font.bold: true; color: "#cdd6f4" }
-                        Text { text: "Capture Screen"; color: "#a6adc8"; font.pixelSize: 11 }
+                    MouseArea { 
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            gameModeWidget.isGameMode = !gameModeWidget.isGameMode
+                            gameModeProc.toggle(gameModeWidget.isGameMode)
+                        }
                     }
                 }
-                MouseArea { 
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        screenshotProc.running = true
-                        root.visible = false
+
+                // Modo Noche (Luna)
+                Rectangle {
+                    id: nightModeWidget
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 65
+                    color: isNightMode ? "#89b4fa" : "#1e1e2e"
+                    radius: 18
+
+                    property bool isNightMode: false
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 10
+
+                        Text {
+                            text: "󰔎"
+                            font.pixelSize: 22
+                            color: nightModeWidget.isNightMode ? "#11111b" : "#cdd6f4"
+                        }
+
+                        Column {
+                            Text {
+                                text: "Night Mode"
+                                font.bold: true
+                                color: nightModeWidget.isNightMode ? "#11111b" : "#cdd6f4"
+                            }
+                            Text {
+                                text: nightModeWidget.isNightMode ? "On" : "Off"
+                                color: nightModeWidget.isNightMode ? "#313244" : "#a6adc8"
+                                font.pixelSize: 11
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            nightModeWidget.isNightMode = !nightModeWidget.isNightMode
+                            nightModeProc.toggle(nightModeWidget.isNightMode)
+                        }
+                    }
+                }
+
+                // Screenshot (Capture)
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 65
+                    color: "#1e1e2e"
+                    radius: 18
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 10
+
+                        Text { text: "󰄄"; font.pixelSize: 22; color: "#cdd6f4" }
+
+                        Column {
+                            Text { text: "Capture"; font.bold: true; color: "#cdd6f4" }
+                            Text { text: "Screen"; color: "#a6adc8"; font.pixelSize: 11 }
+                        }
+                    }
+
+                    MouseArea { 
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            screenshotProc.running = true
+                            root.visible = false
+                        }
                     }
                 }
             }
