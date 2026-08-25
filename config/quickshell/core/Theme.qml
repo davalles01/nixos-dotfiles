@@ -1,34 +1,37 @@
+// Theme.qml (Singleton principal)
 pragma Singleton
 import QtQuick
+import "./Themes"
 
 QtObject {
     id: root
 
-    readonly property QtObject colors: QtObject {
-        // Fondos
-        readonly property color crust: "#11111b"
-        readonly property color mantle: "#181825"
-        readonly property color base: "#1e1e2e"
-        
-        // Superficies / Bordes / Hovers
-        readonly property color surface0: "#313244"
-        readonly property color surface1: "#45475a"
-        readonly property color surface2: "#585b70"
-        readonly property color overlay0: "#6c7086"
-        
-        // Textos
-        readonly property color text: "#cdd6f4"
-        readonly property color subtext0: "#a6adc8"
-        readonly property color subtext1: "#bac2de"
-        
-        // Colores de acento
-        readonly property color blue: "#89b4fa"
-        readonly property color red: "#f38ba8"
-        readonly property color peach: "#fab387"
-        readonly property color yellow: "#f9e2af"
-        readonly property color green: "#a6e3a1"
-        readonly property color lavender: "#b4befe"
-        readonly property color sapphire: "#7dc4e4"
-        readonly property color sky: "#91d7e3"
+    // 1. Instanciar los temas
+    readonly property QtObject mocha: Mocha {}
+    readonly property QtObject nord: Nord {}
+    readonly property QtObject tokyo: Tokyo {}
+    readonly property QtObject latte: Latte {}
+
+    // 2. Variable con el tema activo
+    property QtObject currentTheme: mocha
+
+    // 3. Exponer 'colors' dinámicamente mediante binding
+    readonly property QtObject colors: currentTheme ? currentTheme.colors : mocha.colors
+
+    // 4. Funciones de cambio de tema
+    function setTheme(themeName) {
+        switch (themeName.toLowerCase()) {
+            case "nord": currentTheme = nord; break;
+            case "tokyo": currentTheme = tokyo; break;
+            case "latte": currentTheme = latte; break;
+            default: currentTheme = mocha; break;
+        }
+    }
+
+    function cycleTheme() {
+        if (currentTheme === mocha) currentTheme = nord
+        else if (currentTheme === nord) currentTheme = tokyo
+        else if (currentTheme === tokyo) currentTheme = latte
+        else currentTheme = mocha
     }
 }

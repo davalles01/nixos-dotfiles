@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../core"
 
 Rectangle {
     id: root
@@ -18,7 +19,7 @@ Rectangle {
     Layout.preferredHeight: implicitHeight
     Layout.alignment: Qt.AlignVCenter
 
-    color: "#313244"
+    color: Theme.colors.surface0
     radius: implicitHeight / 2
 
     RowLayout {
@@ -37,7 +38,7 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: 1
             Layout.preferredHeight: 12
-            color: "#45475a"
+            color: Theme.colors.surface1
             Layout.alignment: Qt.AlignVCenter
         }
 
