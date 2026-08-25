@@ -43,7 +43,7 @@ Rectangle {
         }
 
         Image {
-            source: Qt.resolvedUrl("file://" + Quickshell.env("HOME") + "/nixos-dotfiles/config/icons/nixos.svg")
+            source: Qt.resolvedUrl("file://" + Quickshell.env("HOME") + "/nixos-dotfiles/config/icons/" + Theme.logo)
             sourceSize.width: 16
             sourceSize.height: 16
             Layout.alignment: Qt.AlignVCenter

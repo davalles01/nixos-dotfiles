@@ -18,6 +18,9 @@ QtObject {
     // 3. Exponer 'colors' dinámicamente mediante binding
     readonly property QtObject colors: currentTheme ? currentTheme.colors : mocha.colors
 
+	// Propiedad dinámica para el logo según el tema actual
+    readonly property string logo: currentTheme ? currentTheme.logo : mocha.logo
+
     // 4. Funciones de cambio de tema
     function setTheme(themeName) {
         switch (themeName.toLowerCase()) {

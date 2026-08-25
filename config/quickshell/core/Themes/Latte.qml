@@ -4,7 +4,9 @@ import QtQuick
 QtObject {
     id: root
 
-    readonly property QtObject colors: QtObject {
+	readonly property string logo: "nixos-black.svg"
+	
+	readonly property QtObject colors: QtObject {
         readonly property color crust: "#dce0e8"
         readonly property color mantle: "#e6e9ef"
         readonly property color base: "#eff1f5"
