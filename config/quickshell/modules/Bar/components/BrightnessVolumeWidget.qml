@@ -3,20 +3,19 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import "../services"
+import "../../../core"
 
 Rectangle {
     id: root
 
-    // Dimensiones implícitas dinámicas
     implicitWidth: contentRow.implicitWidth + 24
     implicitHeight: 28
 
-    // Propiedades para comunicar el tamaño al RowLayout superior
     Layout.preferredWidth: implicitWidth
     Layout.preferredHeight: implicitHeight
     Layout.alignment: Qt.AlignVCenter
 
-    color: "#313244"
+    color: Theme.colors.surface0
     radius: implicitHeight / 2
 
     property int volume: 0
@@ -68,25 +67,22 @@ Rectangle {
         anchors.centerIn: parent
         spacing: 12
 
-        // Icono DND si está activo
         Text {
             visible: DndService.dndActive
             text: "󰂛"
-            color: "#f38ba8"
+            color: Theme.colors.red
             Layout.alignment: Qt.AlignVCenter
         }
 
-        // Brillo
         Text { 
             text: root.moonIcon + " " + root.brightnessPct + "%"
-            color: "#f9e2af" 
+            color: Theme.colors.yellow 
             Layout.alignment: Qt.AlignVCenter
         }
 
-        // Volumen
         Text {
             text: (root.isMuted ? "󰝟 " : "󰕾 ") + root.volume + "%"
-            color: root.isMuted ? "#f38ba8" : "#a6e3a1" 
+            color: root.isMuted ? Theme.colors.red : Theme.colors.green 
             Layout.alignment: Qt.AlignVCenter
         }
     }

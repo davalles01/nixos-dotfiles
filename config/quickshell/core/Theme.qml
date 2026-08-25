@@ -2,25 +2,33 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    // === COLORES BASE ===
-    readonly property color bgPrimary: "#11111b"      // Fondo principal de popups / tarjetas
-    readonly property color bgSecondary: "#1e1e2e"    // Fondo de widgets / elementos secundarios
-    readonly property color bgHover: "#313244"        // Estado hover / elementos inactivos
+    id: root
 
-    // === BORDES Y LÍNEAS ===
-    readonly property color borderPrimary: "#313244"  // Bordes sutiles
-    readonly property color borderActive: "#a6e3a1"   // Bordes destacados / activos
-
-    // === TEXTO ===
-    readonly property color textPrimary: "#cdd6f4"    // Texto principal
-    readonly property color textSecondary: "#a6adc8"  // Subtítulos / texto atenuado
-    readonly property color textMuted: "#6c7086"      // Texto deshabilitado / muy secundario
-    readonly property color textDark: "#11111b"       // Texto sobre fondos claros
-
-    // === ACCENTOS Y ESTADOS ===
-    readonly property color accent: "#89b4fa"         // Color de acento principal (ej. Bluetooth, activos)
-    readonly property color danger: "#f38ba8"         // Para apagar, cancelar, DND activo, errores
-    readonly property color warning: "#f9e2af"        // Para brillo, alertas
-    readonly property color success: "#a6e3a1"        // Para estado activo/modo juego
-    readonly property color wifiAccent: "#e86a58"     // Color específico de Wi-Fi / volumen
+    readonly property QtObject colors: QtObject {
+        // Fondos
+        readonly property color crust: "#11111b"
+        readonly property color mantle: "#181825"
+        readonly property color base: "#1e1e2e"
+        
+        // Superficies / Bordes / Hovers
+        readonly property color surface0: "#313244"
+        readonly property color surface1: "#45475a"
+        readonly property color surface2: "#585b70"
+        readonly property color overlay0: "#6c7086"
+        
+        // Textos
+        readonly property color text: "#cdd6f4"
+        readonly property color subtext0: "#a6adc8"
+        readonly property color subtext1: "#bac2de"
+        
+        // Colores de acento
+        readonly property color blue: "#89b4fa"
+        readonly property color red: "#f38ba8"
+        readonly property color peach: "#fab387"
+        readonly property color yellow: "#f9e2af"
+        readonly property color green: "#a6e3a1"
+        readonly property color lavender: "#b4befe"
+        readonly property color sapphire: "#7dc4e4"
+        readonly property color sky: "#91d7e3"
+    }
 }

@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "../../../../core"
 
 PanelWindow {
     id: root
@@ -69,15 +70,15 @@ PanelWindow {
         id: contentCard
         width: 320
         height: 440
-		focus: true
+        focus: true
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.topMargin: 44
         anchors.rightMargin: 50
 
-        color: "#11111b"
+        color: Theme.colors.crust
         radius: 20
-        border.color: "#313244"
+        border.color: Theme.colors.surface0
         border.width: 1
 
         MouseArea {
@@ -85,7 +86,6 @@ PanelWindow {
             onClicked: (mouse) => mouse.accepted = true
         }
 
-		// Captura la tecla Escape
         Keys.onEscapePressed: (event) => {
             root.visible = false
             event.accepted = true
@@ -96,13 +96,12 @@ PanelWindow {
             anchors.margins: 16
             spacing: 12
 
-            // Cabecera principal
             RowLayout {
                 Layout.fillWidth: true
 
                 Text {
                     text: "Redes Wi-Fi"
-                    color: "#cdd6f4"
+                    color: Theme.colors.text
                     font.pixelSize: 16
                     font.bold: true
                 }
@@ -112,7 +111,7 @@ PanelWindow {
                 Text {
                     text: "󰑐"
                     font.pixelSize: 16
-                    color: scanWifiProc.running ? "#a6adc8" : "#89b4fa"
+                    color: scanWifiProc.running ? Theme.colors.subtext0 : Theme.colors.blue
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
@@ -125,7 +124,7 @@ PanelWindow {
                 Text {
                     text: root.wifiSvc?.powered ? "󰤨" : "󰤮"
                     font.pixelSize: 18
-                    color: root.wifiSvc?.powered ? "#a6e3a1" : "#f38ba8"
+                    color: root.wifiSvc?.powered ? Theme.colors.green : Theme.colors.red
 
                     MouseArea {
                         anchors.fill: parent
@@ -135,13 +134,12 @@ PanelWindow {
                 }
             }
 
-            // Tarjeta de Red Actual Conectada
             Rectangle {
                 Layout.fillWidth: true
                 height: 48
-                color: "#1e1e2e"
+                color: Theme.colors.base
                 radius: 12
-                border.color: root.wifiSvc?.connected ? "#89b4fa" : "#313244"
+                border.color: root.wifiSvc?.connected ? Theme.colors.blue : Theme.colors.surface0
                 border.width: 1
 
                 RowLayout {
@@ -152,7 +150,7 @@ PanelWindow {
                     Text {
                         text: root.wifiSvc?.connected ? "󰤨" : "󰤮"
                         font.pixelSize: 18
-                        color: root.wifiSvc?.connected ? "#89b4fa" : "#f38ba8"
+                        color: root.wifiSvc?.connected ? Theme.colors.blue : Theme.colors.red
                     }
 
                     ColumnLayout {
@@ -161,7 +159,7 @@ PanelWindow {
 
                         Text {
                             text: "Conectado a"
-                            color: "#a6adc8"
+                            color: Theme.colors.subtext0
                             font.pixelSize: 10
                         }
 
@@ -169,7 +167,7 @@ PanelWindow {
                             text: (root.wifiSvc && root.wifiSvc.connected && root.wifiSvc.ssid !== "") 
                                   ? root.wifiSvc.ssid 
                                   : "Sin conexión"
-                            color: "#cdd6f4"
+                            color: Theme.colors.text
                             font.bold: true
                             elide: Text.ElideRight
                             Layout.fillWidth: true
@@ -178,9 +176,8 @@ PanelWindow {
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: "#313244" }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.colors.surface0 }
 
-            // Lista de redes disponibles
             ListView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -192,7 +189,7 @@ PanelWindow {
                     required property var modelData
                     width: ListView.view.width
                     height: 42
-                    color: modelData.inUse ? "#313244" : "#1e1e2e"
+                    color: modelData.inUse ? Theme.colors.surface0 : Theme.colors.base
                     radius: 10
 
                     RowLayout {
@@ -202,7 +199,7 @@ PanelWindow {
 
                         Text {
                             text: modelData.inUse ? "󰤨" : "󰤢"
-                            color: modelData.inUse ? "#89b4fa" : "#cdd6f4"
+                            color: modelData.inUse ? Theme.colors.blue : Theme.colors.text
                         }
 
                         ColumnLayout {
@@ -211,7 +208,7 @@ PanelWindow {
 
                             Text {
                                 text: modelData.ssid
-                                color: "#cdd6f4"
+                                color: Theme.colors.text
                                 font.bold: modelData.inUse
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
@@ -219,7 +216,7 @@ PanelWindow {
 
                             Text {
                                 text: modelData.security
-                                color: "#a6adc8"
+                                color: Theme.colors.subtext0
                                 font.pixelSize: 10
                             }
                         }
@@ -227,7 +224,7 @@ PanelWindow {
                         Text {
                             visible: modelData.inUse
                             text: "󰄬"
-                            color: "#a6e3a1"
+                            color: Theme.colors.green
                         }
                     }
                 }

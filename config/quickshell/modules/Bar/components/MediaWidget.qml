@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import "../../../core"
 
 Item {
     id: root
@@ -19,7 +20,6 @@ Item {
     implicitWidth: hasPlayer ? contentRow.implicitWidth + 16 : 85
     implicitHeight: 28
 
-    // Alineación explícita para evitar desplazar a otros elementos del Layout
     Layout.alignment: Qt.AlignVCenter
     Layout.preferredWidth: implicitWidth
     Layout.preferredHeight: implicitHeight
@@ -45,9 +45,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "#1e1e2e"
+        color: Theme.colors.base
         radius: 12
-        border.color: "#313244"
+        border.color: Theme.colors.surface0
         border.width: 1
 
         RowLayout {
@@ -61,7 +61,7 @@ Item {
             Text {
                 text: "󰎇"
                 font.pixelSize: 13
-                color: "#6c7086"
+                color: Theme.colors.overlay0
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -69,7 +69,7 @@ Item {
                 text: "No media"
                 font.pixelSize: 10
                 font.bold: true
-                color: "#6c7086"
+                color: Theme.colors.overlay0
                 Layout.alignment: Qt.AlignVCenter
             }
         }
@@ -93,7 +93,7 @@ Item {
                     width: 16
                     height: 16
                     radius: 8
-                    color: "#11111b"
+                    color: Theme.colors.crust
 
                     RotationAnimation on rotation {
                         running: root.isPlaying
@@ -108,7 +108,7 @@ Item {
                         width: 5
                         height: 5
                         radius: 2.5
-                        color: "#cba6f7"
+                        color: Theme.colors.mauve
                     }
                 }
             }
@@ -123,7 +123,7 @@ Item {
                     id: titleText
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.activePlayer?.trackTitle || ""
-                    color: "#cdd6f4"
+                    color: Theme.colors.text
                     font.pixelSize: 10
                     font.bold: true
 
@@ -162,7 +162,7 @@ Item {
                 Layout.preferredWidth: 1
                 Layout.preferredHeight: 12
                 Layout.alignment: Qt.AlignVCenter
-                color: "#45475a"
+                color: Theme.colors.surface1
             }
 
             RowLayout {
@@ -174,13 +174,13 @@ Item {
                     Layout.preferredHeight: 20
                     Layout.alignment: Qt.AlignVCenter
                     radius: 10
-                    color: "#cba6f7"
+                    color: Theme.colors.mauve
 
                     Text {
                         anchors.centerIn: parent
                         text: root.isPlaying ? "󰏤" : "󰐊"
                         font.pixelSize: 11
-                        color: "#11111b"
+                        color: Theme.colors.crust
                     }
 
                     MouseArea {
@@ -193,7 +193,7 @@ Item {
                 Text {
                     text: "󰒵"
                     font.pixelSize: 12
-                    color: "#a6adc8"
+                    color: Theme.colors.subtext0
                     visible: Boolean(root.activePlayer && root.activePlayer.canGoNext)
                     Layout.alignment: Qt.AlignVCenter
 
@@ -213,7 +213,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: 2
-                    color: "#313244"
+                    color: Theme.colors.surface0
 
                     Rectangle {
                         anchors.left: parent.left
@@ -221,7 +221,7 @@ Item {
                         anchors.bottom: parent.bottom
                         width: parent.width * Math.min(1, Math.max(0, root.progressPercent))
                         radius: 2
-                        color: "#cba6f7"
+                        color: Theme.colors.mauve
 
                         Behavior on width { NumberAnimation { duration: 200 } }
                     }

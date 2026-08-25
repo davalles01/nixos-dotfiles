@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "../../../../core"
 
 PanelWindow {
     id: root
@@ -29,7 +30,6 @@ PanelWindow {
         root.visible = !root.visible
     }
 
-    // Obtener lista de dispositivos emparejados
     Process {
         id: checkPairedProc
         command: ["bluetoothctl", "paired-devices"]
@@ -50,7 +50,6 @@ PanelWindow {
         }
     }
 
-    // Obtener todos los dispositivos
     Process {
         id: scanBtProc
         command: ["bluetoothctl", "devices"]
@@ -94,15 +93,15 @@ PanelWindow {
         id: contentCard
         width: 320
         height: 420
-		focus: true
+        focus: true
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.topMargin: 44
         anchors.rightMargin: 12
 
-        color: "#11111b"
+        color: Theme.colors.crust
         radius: 20
-        border.color: "#313244"
+        border.color: Theme.colors.surface0
         border.width: 1
 
         MouseArea {
@@ -110,7 +109,6 @@ PanelWindow {
             onClicked: (mouse) => mouse.accepted = true
         }
 
-		// Captura la tecla Escape
         Keys.onEscapePressed: (event) => {
             root.visible = false
             event.accepted = true
@@ -126,7 +124,7 @@ PanelWindow {
 
                 Text {
                     text: "Bluetooth"
-                    color: "#cdd6f4"
+                    color: Theme.colors.text
                     font.pixelSize: 16
                     font.bold: true
                 }
@@ -136,7 +134,7 @@ PanelWindow {
                 Text {
                     text: "󰑐"
                     font.pixelSize: 16
-                    color: (scanBtProc.running || checkPairedProc.running) ? "#a6adc8" : "#89b4fa"
+                    color: (scanBtProc.running || checkPairedProc.running) ? Theme.colors.subtext0 : Theme.colors.blue
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
@@ -149,7 +147,7 @@ PanelWindow {
                 Text {
                     text: root.btSvc?.powered ? "󰂯" : "󰂲"
                     font.pixelSize: 18
-                    color: root.btSvc?.powered ? "#89b4fa" : "#f38ba8"
+                    color: root.btSvc?.powered ? Theme.colors.blue : Theme.colors.red
 
                     MouseArea {
                         anchors.fill: parent
@@ -159,7 +157,7 @@ PanelWindow {
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: "#313244" }
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.colors.surface0 }
 
             ListView {
                 Layout.fillWidth: true
@@ -172,7 +170,7 @@ PanelWindow {
                     required property var modelData
                     width: ListView.view.width
                     height: 42
-                    color: "#1e1e2e"
+                    color: Theme.colors.base
                     radius: 10
 
                     RowLayout {
@@ -182,7 +180,7 @@ PanelWindow {
 
                         Text {
                             text: modelData.paired ? "󰂱" : "󰂯"
-                            color: modelData.paired ? "#a6e3a1" : "#cdd6f4"
+                            color: modelData.paired ? Theme.colors.green : Theme.colors.text
                         }
 
                         ColumnLayout {
@@ -191,14 +189,14 @@ PanelWindow {
 
                             Text {
                                 text: modelData.name
-                                color: "#cdd6f4"
+                                color: Theme.colors.text
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
                             }
 
                             Text {
                                 text: modelData.paired ? "Emparejado" : "No emparejado"
-                                color: modelData.paired ? "#a6e3a1" : "#a6adc8"
+                                color: modelData.paired ? Theme.colors.green : Theme.colors.subtext0
                                 font.pixelSize: 10
                             }
                         }

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../../../core"
 
 Item {
     id: root
@@ -30,7 +31,9 @@ Item {
 
         Text {
             text: root.getWifiIcon()
-            color: (wifiSvc && wifiSvc.powered) ? (wifiSvc.connected ? "#89b4fa" : "#cdd6f4") : "#f38ba8"
+            color: (wifiSvc && wifiSvc.powered) 
+                   ? (wifiSvc.connected ? Theme.colors.blue : Theme.colors.text) 
+                   : Theme.colors.red
             font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
         }
@@ -38,7 +41,7 @@ Item {
         Text {
             visible: wifiSvc ? (wifiSvc.powered && wifiSvc.connected && wifiSvc.ssid !== "") : false
             text: wifiSvc ? wifiSvc.ssid : ""
-            color: "#cdd6f4"
+            color: Theme.colors.text
             font.pixelSize: 12
             font.bold: true
             Layout.alignment: Qt.AlignVCenter
@@ -46,15 +49,15 @@ Item {
     }
 
     MouseArea {
-		anchors.fill: parent
-		cursorShape: Qt.PointingHandCursor
-		onClicked: {
-			if (otherPopup && typeof otherPopup.visible !== "undefined") {
-				otherPopup.visible = false
-			}
-			if (popup) {
-				popup.toggle()
-			}
-		}
-	}
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            if (otherPopup && typeof otherPopup.visible !== "undefined") {
+                otherPopup.visible = false
+            }
+            if (popup) {
+                popup.toggle()
+            }
+        }
+    }
 }

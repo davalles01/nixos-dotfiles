@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../../../core"
 
 Item {
     id: root
@@ -26,9 +27,9 @@ Item {
         Text {
             text: root.getBtIcon()
             color: {
-                if (!btSvc || !btSvc.powered) return "#f38ba8"
-                if (btSvc.connected) return "#a6e3a1"
-                return "#89b4fa"
+                if (!btSvc || !btSvc.powered) return Theme.colors.red
+                if (btSvc.connected) return Theme.colors.green
+                return Theme.colors.blue
             }
             font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
@@ -37,22 +38,22 @@ Item {
         Text {
             visible: btSvc ? (btSvc.powered && btSvc.connected) : false
             text: btSvc ? btSvc.deviceName : ""
-            color: "#cdd6f4"
+            color: Theme.colors.text
             font.pixelSize: 13
             Layout.alignment: Qt.AlignVCenter
         }
     }
 
     MouseArea {
-		anchors.fill: parent
-		cursorShape: Qt.PointingHandCursor
-		onClicked: {
-			if (otherPopup && typeof otherPopup.visible !== "undefined") {
-				otherPopup.visible = false
-			}
-			if (popup) {
-				popup.toggle()
-			}
-		}
-	}
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            if (otherPopup && typeof otherPopup.visible !== "undefined") {
+                otherPopup.visible = false
+            }
+            if (popup) {
+                popup.toggle()
+            }
+        }
+    }
 }

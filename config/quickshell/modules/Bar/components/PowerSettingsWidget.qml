@@ -2,20 +2,19 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../services"
+import "../../../core"
 
 Rectangle {
     id: root
 
-    // Dimensiones implícitas dinámicas
     implicitWidth: contentRow.implicitWidth + 24
     implicitHeight: 28
 
-    // Propiedades para comunicar el tamaño al RowLayout superior
     Layout.preferredWidth: implicitWidth
     Layout.preferredHeight: implicitHeight
     Layout.alignment: Qt.AlignVCenter
 
-    color: "#313244"
+    color: Theme.colors.surface0
     radius: implicitHeight / 2
 
     BatteryService { id: batSvc }
@@ -28,9 +27,9 @@ Rectangle {
         Text {
             text: batSvc.icon + " " + batSvc.percentage + "%"
             color: {
-                if (batSvc.isCharging) return "#a6e3a1"
-                if (batSvc.percentage <= 20) return "#f38ba8"
-                return "#cdd6f4"
+                if (batSvc.isCharging) return Theme.colors.green
+                if (batSvc.percentage <= 20) return Theme.colors.red
+                return Theme.colors.text
             }
             font.bold: batSvc.percentage <= 20
             Layout.alignment: Qt.AlignVCenter
@@ -39,7 +38,7 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: 1
             Layout.preferredHeight: 12
-            color: "#45475a"
+            color: Theme.colors.surface1
             Layout.alignment: Qt.AlignVCenter
         }
 

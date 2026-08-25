@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import "../../../core"
 
 Row {
     spacing: 6
@@ -10,7 +11,7 @@ Row {
             width: modelData.active ? 24 : 10
             height: 10
             radius: 5
-            color: modelData.active ? "#89b4fa" : "#45475a"
+            color: modelData.active ? Theme.colors.blue : Theme.colors.surface1
             Behavior on width { NumberAnimation { duration: 150 } }
         }
     }

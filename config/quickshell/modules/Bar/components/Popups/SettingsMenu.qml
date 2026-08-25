@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "../../../../core"
 import "../../services"
 
 PanelWindow {
@@ -39,9 +40,7 @@ PanelWindow {
         function toggle(enableNightMode) {
             let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/shaders.conf"
             let shaderPath = "$HOME/nixos-dotfiles/config/hypr/conf/shaders/blue-light-filter.frag"
-			let content = enableNightMode ? `decoration { 
-				screen_shader = ${shaderPath} 
-			}` : ""
+            let content = enableNightMode ? `decoration { \n    screen_shader = ${shaderPath} \n}` : ""
             
             let cmd = `echo '${content}' > ${confFile} && hyprctl reload`
             command = ["bash", "-c", cmd]
@@ -139,9 +138,9 @@ PanelWindow {
         anchors.topMargin: 44
         anchors.rightMargin: 12
 
-        color: "#11111b"
+        color: Theme.colors.crust
         radius: 24
-        border.color: "#313244"
+        border.color: Theme.colors.surface1
         border.width: 1
 
         MouseArea {
@@ -163,13 +162,13 @@ PanelWindow {
                 Column {
                     Text {
                         text: Qt.formatDateTime(new Date(), "hh:mm")
-                        color: "#cdd6f4"
+                        color: Theme.colors.text
                         font.pixelSize: 34
                         font.bold: true
                     }
                     Text {
                         text: Qt.formatDateTime(new Date(), "dddd, MMMM d").toUpperCase()
-                        color: "#a6adc8"
+                        color: Theme.colors.subtext0
                         font.pixelSize: 11
                         font.bold: true
                     }
@@ -183,7 +182,7 @@ PanelWindow {
                     Text {
                         text: "󰌾"
                         font.pixelSize: 20
-                        color: "#cdd6f4"
+                        color: Theme.colors.text
                         MouseArea { 
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -193,7 +192,7 @@ PanelWindow {
                     Text {
                         text: "󰜉"
                         font.pixelSize: 20
-                        color: "#cdd6f4"
+                        color: Theme.colors.text
                         MouseArea { 
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -203,7 +202,7 @@ PanelWindow {
                     Text {
                         text: "󰐥"
                         font.pixelSize: 20
-                        color: "#f38ba8"
+                        color: Theme.colors.red
                         MouseArea { 
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -224,7 +223,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
-                    color: root.wifiSvc?.powered ? "#e86a58" : "#313244"
+                    color: root.wifiSvc?.powered ? Theme.colors.peach : Theme.colors.surface0
                     radius: 18
 
                     MouseArea {
@@ -243,7 +242,7 @@ PanelWindow {
                         Text {
                             text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? "󰤨" : "󰤟") : "󰤮"
                             font.pixelSize: 22
-                            color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
+                            color: root.wifiSvc?.powered ? Theme.colors.crust : Theme.colors.text
                         }
 
                         ColumnLayout {
@@ -253,12 +252,12 @@ PanelWindow {
                             Text {
                                 text: "Wi-Fi"
                                 font.bold: true
-                                color: root.wifiSvc?.powered ? "#11111b" : "#cdd6f4"
+                                color: root.wifiSvc?.powered ? Theme.colors.crust : Theme.colors.text
                             }
 
                             Text {
                                 text: root.wifiSvc?.powered ? (root.wifiSvc?.connected ? root.wifiSvc?.ssid : "Desconectado") : "Apagado"
-                                color: root.wifiSvc?.powered ? "#313244" : "#a6adc8"
+                                color: root.wifiSvc?.powered ? Theme.colors.mantle : Theme.colors.subtext0
                                 font.pixelSize: 11
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
@@ -271,7 +270,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
-                    color: root.btSvc?.powered ? "#89b4fa" : "#313244"
+                    color: root.btSvc?.powered ? Theme.colors.blue : Theme.colors.surface0
                     radius: 18
 
                     MouseArea {
@@ -290,7 +289,7 @@ PanelWindow {
                         Text {
                             text: root.btSvc?.powered ? (root.btSvc?.connected ? "󰂱" : "󰂯") : "󰂲"
                             font.pixelSize: 22
-                            color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
+                            color: root.btSvc?.powered ? Theme.colors.crust : Theme.colors.text
                         }
 
                         ColumnLayout {
@@ -300,12 +299,12 @@ PanelWindow {
                             Text {
                                 text: "Bluetooth"
                                 font.bold: true
-                                color: root.btSvc?.powered ? "#11111b" : "#cdd6f4"
+                                color: root.btSvc?.powered ? Theme.colors.crust : Theme.colors.text
                             }
 
                             Text {
                                 text: root.btSvc?.powered ? (root.btSvc?.connected ? root.btSvc?.deviceName : "Desconectado") : "Apagado"
-                                color: root.btSvc?.powered ? "#313244" : "#a6adc8"
+                                color: root.btSvc?.powered ? Theme.colors.mantle : Theme.colors.subtext0
                                 font.pixelSize: 11
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
@@ -317,13 +316,13 @@ PanelWindow {
                 // Do Not Disturb
                 Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: 65
-                    color: DndService.dndActive ? "#f38ba8" : "#1e1e2e"; radius: 18
+                    color: DndService.dndActive ? Theme.colors.red : Theme.colors.base; radius: 18
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 12; spacing: 10
-                        Text { text: DndService.dndActive ? "󰂛" : "󰂚"; font.pixelSize: 22; color: DndService.dndActive ? "#11111b" : "#cdd6f4" }
+                        Text { text: DndService.dndActive ? "󰂛" : "󰂚"; font.pixelSize: 22; color: DndService.dndActive ? Theme.colors.crust : Theme.colors.text }
                         Column {
-                            Text { text: "Do Not ..."; font.bold: true; color: DndService.dndActive ? "#11111b" : "#cdd6f4" }
-                            Text { text: DndService.dndActive ? "On" : "Off"; color: DndService.dndActive ? "#313244" : "#a6adc8"; font.pixelSize: 11 }
+                            Text { text: "Do Not ..."; font.bold: true; color: DndService.dndActive ? Theme.colors.crust : Theme.colors.text }
+                            Text { text: DndService.dndActive ? "On" : "Off"; color: DndService.dndActive ? Theme.colors.mantle : Theme.colors.subtext0; font.pixelSize: 11 }
                         }
                     }
                     MouseArea { 
@@ -338,10 +337,10 @@ PanelWindow {
                     id: gameModeWidget
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
-                    color: isGameMode ? "#313244" : "#1e1e2e"
+                    color: isGameMode ? Theme.colors.surface0 : Theme.colors.base
                     radius: 18
 
-                    border.color: isGameMode ? "#a6e3a1" : "transparent"
+                    border.color: isGameMode ? Theme.colors.green : "transparent"
                     border.width: 1
 
                     property bool isGameMode: false
@@ -354,18 +353,18 @@ PanelWindow {
                         Text { 
                             text: "󰓅"
                             font.pixelSize: 22
-                            color: gameModeWidget.isGameMode ? "#a6e3a1" : "#cdd6f4"
+                            color: gameModeWidget.isGameMode ? Theme.colors.green : Theme.colors.text
                         }
 
                         Column {
                             Text { 
                                 text: "Gaming"
                                 font.bold: true
-                                color: "#cdd6f4" 
+                                color: Theme.colors.text 
                             }
                             Text { 
                                 text: gameModeWidget.isGameMode ? "Perf." : "Bal."
-                                color: gameModeWidget.isGameMode ? "#a6e3a1" : "#a6adc8"
+                                color: gameModeWidget.isGameMode ? Theme.colors.green : Theme.colors.subtext0
                                 font.pixelSize: 11 
                             }
                         }
@@ -386,7 +385,7 @@ PanelWindow {
                     id: nightModeWidget
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
-                    color: isNightMode ? "#89b4fa" : "#1e1e2e"
+                    color: isNightMode ? Theme.colors.blue : Theme.colors.base
                     radius: 18
 
                     property bool isNightMode: false
@@ -399,18 +398,18 @@ PanelWindow {
                         Text {
                             text: "󰔎"
                             font.pixelSize: 22
-                            color: nightModeWidget.isNightMode ? "#11111b" : "#cdd6f4"
+                            color: nightModeWidget.isNightMode ? Theme.colors.crust : Theme.colors.text
                         }
 
                         Column {
                             Text {
                                 text: "Night Mode"
                                 font.bold: true
-                                color: nightModeWidget.isNightMode ? "#11111b" : "#cdd6f4"
+                                color: nightModeWidget.isNightMode ? Theme.colors.crust : Theme.colors.text
                             }
                             Text {
                                 text: nightModeWidget.isNightMode ? "On" : "Off"
-                                color: nightModeWidget.isNightMode ? "#313244" : "#a6adc8"
+                                color: nightModeWidget.isNightMode ? Theme.colors.mantle : Theme.colors.subtext0
                                 font.pixelSize: 11
                             }
                         }
@@ -430,7 +429,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
-                    color: "#1e1e2e"
+                    color: Theme.colors.base
                     radius: 18
 
                     RowLayout {
@@ -438,11 +437,11 @@ PanelWindow {
                         anchors.margins: 12
                         spacing: 10
 
-                        Text { text: "󰄄"; font.pixelSize: 22; color: "#cdd6f4" }
+                        Text { text: "󰄄"; font.pixelSize: 22; color: Theme.colors.text }
 
                         Column {
-                            Text { text: "Capture"; font.bold: true; color: "#cdd6f4" }
-                            Text { text: "Screen"; color: "#a6adc8"; font.pixelSize: 11 }
+                            Text { text: "Capture"; font.bold: true; color: Theme.colors.text }
+                            Text { text: "Screen"; color: Theme.colors.subtext0; font.pixelSize: 11 }
                         }
                     }
 
@@ -467,7 +466,7 @@ PanelWindow {
                 Text { 
                     text: root.isMuted ? "󰝟" : "󰕾"
                     font.pixelSize: 18
-                    color: root.isMuted ? "#6c7086" : "#e86a58" 
+                    color: root.isMuted ? Theme.colors.overlay0 : Theme.colors.peach 
                 }
                 Slider {
                     id: volSlider
@@ -485,7 +484,7 @@ PanelWindow {
                 Text { 
                     text: root.actualVolume + "%"
                     font.bold: true
-                    color: root.isMuted ? "#6c7086" : "#cdd6f4"
+                    color: root.isMuted ? Theme.colors.overlay0 : Theme.colors.text
                     Layout.preferredWidth: 40 
                 }
             }
@@ -496,7 +495,7 @@ PanelWindow {
             // Slider de Brillo
             RowLayout {
                 Layout.fillWidth: true; spacing: 12
-                Text { text: "󰃠"; font.pixelSize: 18; color: "#f9e2af" }
+                Text { text: "󰃠"; font.pixelSize: 18; color: Theme.colors.yellow }
                 Slider {
                     id: brightSlider
                     Layout.fillWidth: true
@@ -512,7 +511,7 @@ PanelWindow {
                 Text { 
                     text: Math.round(brightSlider.value) + "%"
                     font.bold: true
-                    color: "#cdd6f4"
+                    color: Theme.colors.text
                     Layout.preferredWidth: 40 
                 }
             }
@@ -525,22 +524,22 @@ PanelWindow {
                 
                 Column {
                     Layout.fillWidth: true
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "CPU"; font.pixelSize: 10; color: "#a6adc8"; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "10%"; font.pixelSize: 20; color: "#cdd6f4"; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "CPU"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "10%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
-                Rectangle { width: 1; height: 25; color: "#313244" }
+                Rectangle { width: 1; height: 25; color: Theme.colors.surface0 }
                 
                 Column {
                     Layout.fillWidth: true
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "RAM"; font.pixelSize: 10; color: "#a6adc8"; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "23%"; font.pixelSize: 20; color: "#cdd6f4"; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "RAM"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "23%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
-                Rectangle { width: 1; height: 25; color: "#313244" }
+                Rectangle { width: 1; height: 25; color: Theme.colors.surface0 }
                 
                 Column {
                     Layout.fillWidth: true
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "DISK"; font.pixelSize: 10; color: "#a6adc8"; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "2%"; font.pixelSize: 20; color: "#cdd6f4"; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "DISK"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "2%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
             }
         }
@@ -548,12 +547,13 @@ PanelWindow {
         // --- CONFIRMACIÓN APAGAR ---
         Rectangle {
             anchors.fill: parent
-            color: "#11111bcc"
+            color: Theme.colors.crust
+            opacity: 0.95
             radius: 24
             visible: root.showPowerConfirm
             Column {
                 anchors.centerIn: parent; spacing: 15
-                Text { text: "¿Seguro que quieres apagar?"; color: "#cdd6f4"; font.bold: true }
+                Text { text: "¿Seguro que quieres apagar?"; color: Theme.colors.text; font.bold: true }
                 Row {
                     spacing: 15; anchors.horizontalCenter: parent.horizontalCenter
                     Button { text: "Sí"; onClicked: poweroffProc.running = true }
@@ -565,12 +565,13 @@ PanelWindow {
         // --- CONFIRMACIÓN REINICIAR ---
         Rectangle {
             anchors.fill: parent
-            color: "#11111bcc"
+            color: Theme.colors.crust
+            opacity: 0.95
             radius: 24
             visible: root.showRebootConfirm
             Column {
                 anchors.centerIn: parent; spacing: 15
-                Text { text: "¿Seguro que quieres reiniciar?"; color: "#cdd6f4"; font.bold: true }
+                Text { text: "¿Seguro que quieres reiniciar?"; color: Theme.colors.text; font.bold: true }
                 Row {
                     spacing: 15; anchors.horizontalCenter: parent.horizontalCenter
                     Button { text: "Sí"; onClicked: rebootProc.running = true }
