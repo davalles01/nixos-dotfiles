@@ -169,6 +169,20 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
                 spacing: 3
 
+				Text {
+                    text: "󰒮"
+                    font.pixelSize: 12
+                    color: Theme.colors.subtext0
+                    visible: Boolean(root.activePlayer && root.activePlayer.canGoPrevious)
+                    Layout.alignment: Qt.AlignVCenter
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: if (root.activePlayer) root.activePlayer.previous()
+                    }
+                }			
+	
                 Rectangle {
                     Layout.preferredWidth: 20
                     Layout.preferredHeight: 20
@@ -191,7 +205,7 @@ Item {
                 }
 
                 Text {
-                    text: "󰒵"
+                    text: "󰒭"
                     font.pixelSize: 12
                     color: Theme.colors.subtext0
                     visible: Boolean(root.activePlayer && root.activePlayer.canGoNext)

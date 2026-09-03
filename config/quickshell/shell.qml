@@ -3,30 +3,51 @@ import Quickshell
 import Quickshell.Io
 import "core"
 import "modules/Bar"
-// import "modules/Notifications" <-- Listo para añadir más módulos
+import "modules/WallpaperSelector"
 
 Scope {
     id: rootShell
 
-    // Handler IPC para cambiar el tema desde la consola
+    // Instancia del selector de fondos
+    WallpaperSelector {
+        id: wallpaperWin
+    }
+
+    // Handlers IPC globales
     IpcHandler {
         target: "theme"
 
-        // Comando: quickshell ipc call theme set <nombre>
-        function set(name: string) {
-            Theme.setTheme(name)
+        function set(name: string) { Theme.setTheme(name) }
+        function cycle() { Theme.cycleTheme() }
+    }
+
+    IpcHandler {
+        target: "wallpaper"
+
+        // Comando: quickshell ipc call wallpaper toggle
+        function toggle() {
+            wallpaperWin.isOpen = !wallpaperWin.isOpen
         }
 
-        // Comando: quickshell ipc call theme cycle
-        function cycle() {
-            Theme.cycleTheme()
+        // Comando: quickshell ipc call wallpaper open
+        function open() {
+            wallpaperWin.isOpen = true
         }
     }
 
-    // Módulo de la barra principal
-    Bar {}
+    // Iterador de monitores con enlace estricto de pantalla
+    Variants {
+        model: Quickshell.screens
 
-    // Módulo de notificaciones
-    // NotificationCenter {}
-    // OSD {}
+        delegate: Component {
+            Item {
+                id: wrapper
+                required property var modelData
+
+                Bar {
+                    screen: wrapper.modelData
+                }
+            }
+        }
+    }
 }

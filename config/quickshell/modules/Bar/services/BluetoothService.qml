@@ -10,28 +10,50 @@ Item {
     property string deviceName: ""
     property bool isChangingState: false
 
-    // Consulta directa por rfkill para saber si el hardware está bloqueado o encendido
+    function updateState() {
+        if (svc.isChangingState) return;
+
+        // Reiniciar procesos para forzar una lectura limpia
+        btShowProc.running = false
+        btShowProc.running = true
+
+        btConnProc.running = false
+        btConnProc.running = true
+    }
+
+    // Devuelve "1" si está encendido y "0" si está apagado
+    // Garantiza que onRead SIEMPRE reciba respuesta
     Process {
-        id: btStatusProc
-        command: ["bash", "-c", "rfkill list bluetooth | grep -i 'soft blocked: yes'"]
-        running: true
+        id: btShowProc
+        command: ["bash", "-c", "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0"]
         stdout: SplitParser {
             onRead: data => {
                 if (!svc.isChangingState) {
-                    // Si grep encuentra 'soft blocked: yes', el bluetooth está apagado
-                    svc.powered = (data.trim().length === 0)
+                    let val = data.trim()
+                    svc.powered = (val === "1")
+                    
+                    // Si se acaba de apagar, limpiar datos de conexión inmediatamente
+                    if (!svc.powered) {
+                        svc.connected = false
+                        svc.deviceName = ""
+                    }
                 }
             }
         }
     }
 
-    // Consulta el primer dispositivo conectado
+    // Consulta de dispositivo conectado
     Process {
-        id: btDevicesProc
+        id: btConnProc
         command: ["bash", "-c", "bluetoothctl info | grep 'Name:'"]
-        running: true
         stdout: SplitParser {
             onRead: data => {
+                if (!svc.powered) {
+                    svc.connected = false
+                    svc.deviceName = ""
+                    return
+                }
+
                 let line = data.trim()
                 if (line.length > 0) {
                     let parts = line.split("Name:")
@@ -51,14 +73,17 @@ Item {
 
     Timer {
         id: cooldownTimer
-        interval: 2000
+        interval: 1500
         repeat: false
-        onTriggered: svc.isChangingState = false
+        onTriggered: {
+            svc.isChangingState = false
+            svc.updateState()
+        }
     }
 
     function toggleBt() {
         let targetState = !powered
-        
+
         svc.isChangingState = true
         svc.powered = targetState
 
@@ -74,16 +99,12 @@ Item {
         cooldownTimer.restart()
     }
 
-    // Polling regular cada 3 segundos
+    // Polling regular cada 2 segundos
     Timer {
-        interval: 3000
+        interval: 2000
         running: true
         repeat: true
-        onTriggered: {
-            if (!svc.isChangingState) {
-                if (!btStatusProc.running) btStatusProc.running = true
-                if (!btDevicesProc.running && svc.powered) btDevicesProc.running = true
-            }
-        }
+        triggeredOnStart: true
+        onTriggered: svc.updateState()
     }
 }

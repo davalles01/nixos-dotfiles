@@ -28,6 +28,15 @@ PanelWindow {
 
     function toggle() {
         root.visible = !root.visible
+        if (root.visible) {
+            if (root.btSvc) root.btSvc.updateState()
+            refreshDevices()
+        }
+    }
+
+    function refreshDevices() {
+        checkPairedProc.running = false
+        checkPairedProc.running = true
     }
 
     Process {
@@ -45,6 +54,8 @@ PanelWindow {
                     }
                 }
                 root.pairedMacs = macs
+                
+                scanBtProc.running = false
                 scanBtProc.running = true
             }
         }
@@ -77,11 +88,11 @@ PanelWindow {
     }
 
     Timer {
-        interval: 5000
+        interval: 4000
         running: root.visible
         repeat: true
         triggeredOnStart: true
-        onTriggered: checkPairedProc.running = true
+        onTriggered: root.refreshDevices()
     }
 
     MouseArea {
@@ -138,7 +149,7 @@ PanelWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: checkPairedProc.running = true
+                        onClicked: root.refreshDevices()
                     }
                 }
 

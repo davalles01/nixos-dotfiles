@@ -1,3 +1,4 @@
+// modules/Bar/Bar.qml
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -7,6 +8,9 @@ import "services"
 
 PanelWindow {
     id: topBar
+
+    // Quickshell asignará la pantalla automáticamente cuando se instancie desde shell.qml
+
     anchors {
         top: true
         left: true
@@ -71,9 +75,11 @@ PanelWindow {
             networkPopup: networkPopup
             bluetoothPopup: bluetoothPopup
         }
+
         BrightnessVolumeWidget {
             Layout.alignment: Qt.AlignVCenter
         }
+
         PowerSettingsWidget {
             Layout.alignment: Qt.AlignVCenter
         }

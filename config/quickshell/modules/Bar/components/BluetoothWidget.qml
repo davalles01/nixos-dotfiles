@@ -13,6 +13,12 @@ Item {
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
 
+    Component.onCompleted: {
+        if (btSvc && typeof btSvc.updateState === "function") {
+            btSvc.updateState()
+        }
+    }
+
     function getBtIcon() {
         if (!btSvc || !btSvc.powered) return "󰂲"
         if (btSvc.connected) return "󰂱"

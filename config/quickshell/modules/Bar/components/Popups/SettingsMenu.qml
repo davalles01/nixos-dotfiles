@@ -11,11 +11,9 @@ PanelWindow {
     id: root
     visible: false
 
-    // PROPIEDADES GLOBALES PARA RECIBIR LOS SERVICIOS DESDE SHELL.QML
     property WifiService wifiSvc
     property BluetoothService btSvc
 
-    // Propiedades para rastrear el volumen real y si está silenciado
     property int actualVolume: 0
     property bool isMuted: false
 
@@ -33,10 +31,9 @@ PanelWindow {
     Process { id: setVolProc }
     Process { id: setBrightnessProc }
 
-    // --- PROCESO MODO NOCHE (SHADER LUZ AZUL) ---
+    // --- PROCESO MODO NOCHE ---
     Process {
         id: nightModeProc
-
         function toggle(enableNightMode) {
             let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/shaders.conf"
             let shaderPath = "$HOME/nixos-dotfiles/config/hypr/conf/shaders/blue-light-filter.frag"
@@ -48,10 +45,18 @@ PanelWindow {
         }
     }
 
-    // --- PROCESO DE CAMBIO DE MODO (JUEGO - NORMAL) ---
+    // Proceso para detectar estado real del Modo Noche
+    Process {
+        id: checkNightModeProc
+        command: ["bash", "-c", "grep -q 'screen_shader' $HOME/nixos-dotfiles/config/hypr/conf/shaders.conf"]
+        onExited: (exitCode) => {
+            nightModeWidget.isNightMode = (exitCode === 0)
+        }
+    }
+
+    // --- PROCESO MODO JUEGO ---
     Process {
         id: gameModeProc
-
         function toggle(enableGameMode) {
             let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"
             let targetFile = enableGameMode 
@@ -59,9 +64,17 @@ PanelWindow {
                 : "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig.conf"
 
             let cmd = `sed -i 's|^source = .*|source = ${targetFile}|' ${confFile} && hyprctl reload`
-            
             command = ["bash", "-c", cmd]
             running = true
+        }
+    }
+
+    // Proceso para detectar estado real del Modo Juego
+    Process {
+        id: checkGameModeProc
+        command: ["bash", "-c", "grep -q 'daniConfig-gamemode.conf' $HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"]
+        onExited: (exitCode) => {
+            gameModeWidget.isGameMode = (exitCode === 0)
         }
     }
 
@@ -87,7 +100,6 @@ PanelWindow {
         }
     }
 
-    // Timer para consultar el volumen dinámicamente cuando el popup está abierto
     Timer {
         interval: 300
         running: root.visible
@@ -96,14 +108,10 @@ PanelWindow {
     }
 
     anchors {
-        top: true
-        bottom: true
-        left: true
-        right: true
+        top: true; bottom: true; left: true; right: true
     }
 
     color: "transparent"
-
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
@@ -111,13 +119,23 @@ PanelWindow {
         root.visible = !root.visible
     }
 
+    function refreshAllStates() {
+        syncVolProc.running = true
+        checkNightModeProc.running = true
+        checkGameModeProc.running = true
+        if (root.wifiSvc && typeof root.wifiSvc.updateState === "function") root.wifiSvc.updateState()
+        if (root.btSvc && typeof root.btSvc.updateState === "function") root.btSvc.updateState()
+    }
+
+    Component.onCompleted: refreshAllStates()
+
     property bool showPowerConfirm: false
     property bool showRebootConfirm: false
 
     onVisibleChanged: {
         if (root.visible) {
             contentCard.forceActiveFocus()
-            syncVolProc.running = true
+            refreshAllStates()
         } else {
             root.showPowerConfirm = false
             root.showRebootConfirm = false
@@ -212,14 +230,14 @@ PanelWindow {
                 }
             }
 
-            // --- RECUADROS PRINCIPALES (GRID 2 COLUMNAS) ---
+            // --- RECUADROS PRINCIPALES ---
             GridLayout {
                 columns: 2
                 columnSpacing: 10
                 rowSpacing: 10
                 Layout.fillWidth: true
 
-                // Tarjeta Wi-Fi
+                // Wi-Fi
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
@@ -229,9 +247,7 @@ PanelWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (root.wifiSvc) root.wifiSvc.toggleWifi()
-                        }
+                        onClicked: if (root.wifiSvc) root.wifiSvc.toggleWifi()
                     }
 
                     RowLayout {
@@ -266,7 +282,7 @@ PanelWindow {
                     }
                 }
 
-                // Tarjeta Bluetooth
+                // Bluetooth
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 65
@@ -276,9 +292,7 @@ PanelWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (root.btSvc) root.btSvc.toggleBt()
-                        }
+                        onClicked: if (root.btSvc) root.btSvc.toggleBt()
                     }
 
                     RowLayout {
@@ -459,8 +473,6 @@ PanelWindow {
             Item { Layout.preferredHeight: 5 }
 
             // --- SLIDERS ---
-
-            // Slider de Volumen
             RowLayout {
                 Layout.fillWidth: true; spacing: 12
                 Text { 
@@ -489,10 +501,8 @@ PanelWindow {
                 }
             }
 
-            // Servicio de Brillo
             BrightnessService { id: brightSvc }
 
-            // Slider de Brillo
             RowLayout {
                 Layout.fillWidth: true; spacing: 12
                 Text { text: "󰃠"; font.pixelSize: 18; color: Theme.colors.yellow }
@@ -544,7 +554,7 @@ PanelWindow {
             }
         }
 
-        // --- CONFIRMACIÓN APAGAR ---
+        // --- CONFIRMACIONES ---
         Rectangle {
             anchors.fill: parent
             color: Theme.colors.crust
@@ -562,7 +572,6 @@ PanelWindow {
             }
         }
 
-        // --- CONFIRMACIÓN REINICIAR ---
         Rectangle {
             anchors.fill: parent
             color: Theme.colors.crust

@@ -13,6 +13,12 @@ Item {
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
 
+    Component.onCompleted: {
+        if (wifiSvc && typeof wifiSvc.updateState === "function") {
+            wifiSvc.updateState()
+        }
+    }
+
     function getWifiIcon() {
         if (!wifiSvc || !wifiSvc.powered) return "󰤮"
         if (!wifiSvc.connected) return "󰤟"
