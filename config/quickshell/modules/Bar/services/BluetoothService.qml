@@ -13,16 +13,12 @@ Item {
     function updateState() {
         if (svc.isChangingState) return;
 
-        // Reiniciar procesos para forzar una lectura limpia
+        // Iniciar la verificación en cadena para evitar condiciones de carrera
         btShowProc.running = false
         btShowProc.running = true
-
-        btConnProc.running = false
-        btConnProc.running = true
     }
 
     // Devuelve "1" si está encendido y "0" si está apagado
-    // Garantiza que onRead SIEMPRE reciba respuesta
     Process {
         id: btShowProc
         command: ["bash", "-c", "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0"]
@@ -32,20 +28,23 @@ Item {
                     let val = data.trim()
                     svc.powered = (val === "1")
                     
-                    // Si se acaba de apagar, limpiar datos de conexión inmediatamente
                     if (!svc.powered) {
                         svc.connected = false
                         svc.deviceName = ""
+                    } else {
+                        // Solo consultamos la conexión si la antena está encendida
+                        btConnProc.running = false
+                        btConnProc.running = true
                     }
                 }
             }
         }
     }
 
-    // Consulta de dispositivo conectado
+    // Consulta de dispositivo conectado con fallback explícito ("DISCONNECTED")
     Process {
         id: btConnProc
-        command: ["bash", "-c", "bluetoothctl info | grep 'Name:'"]
+        command: ["bash", "-c", "bluetoothctl info | grep 'Name:' || echo 'DISCONNECTED'"]
         stdout: SplitParser {
             onRead: data => {
                 if (!svc.powered) {
@@ -55,14 +54,19 @@ Item {
                 }
 
                 let line = data.trim()
-                if (line.length > 0) {
+                if (line.length > 0 && line !== "DISCONNECTED") {
                     let parts = line.split("Name:")
                     if (parts.length >= 2) {
-                        svc.deviceName = parts[1].trim()
-                        svc.connected = true
-                        return
+                        let name = parts[1].trim()
+                        if (name.length > 0) {
+                            svc.deviceName = name
+                            svc.connected = true
+                            return
+                        }
                     }
                 }
+
+                // Si no hay respuesta de nombre o dice DISCONNECTED, forzamos la desconexión
                 svc.connected = false
                 svc.deviceName = ""
             }

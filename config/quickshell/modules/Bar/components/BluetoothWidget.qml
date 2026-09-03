@@ -10,6 +10,11 @@ Item {
     property var popup 
     property var otherPopup
 
+    // Propiedades explícitas para garantizar la reactividad en la UI
+    readonly property bool isPowered: btSvc ? btSvc.powered : false
+    readonly property bool isConnected: btSvc ? btSvc.connected : false
+    readonly property string deviceName: btSvc ? (btSvc.deviceName || "") : ""
+
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
 
@@ -19,9 +24,20 @@ Item {
         }
     }
 
+    // Escuchar actualizaciones directas del servicio Bluetooth
+    Connections {
+        target: root.btSvc
+        ignoreUnknownSignals: true
+        
+        // Se ejecuta si tu servicio emite señales estándar o al cambiar propiedades
+        function onPoweredChanged() { if (root.btSvc && typeof root.btSvc.updateState === "function") root.btSvc.updateState() }
+        function onConnectedChanged() { if (root.btSvc && typeof root.btSvc.updateState === "function") root.btSvc.updateState() }
+        function onDeviceNameChanged() { if (root.btSvc && typeof root.btSvc.updateState === "function") root.btSvc.updateState() }
+    }
+
     function getBtIcon() {
-        if (!btSvc || !btSvc.powered) return "󰂲"
-        if (btSvc.connected) return "󰂱"
+        if (!root.isPowered) return "󰂲"
+        if (root.isConnected) return "󰂱"
         return "󰂯"
     }
 
@@ -33,8 +49,8 @@ Item {
         Text {
             text: root.getBtIcon()
             color: {
-                if (!btSvc || !btSvc.powered) return Theme.colors.red
-                if (btSvc.connected) return Theme.colors.green
+                if (!root.isPowered) return Theme.colors.red
+                if (root.isConnected) return Theme.colors.green
                 return Theme.colors.blue
             }
             font.pixelSize: 14
@@ -42,8 +58,8 @@ Item {
         }
 
         Text {
-            visible: btSvc ? (btSvc.powered && btSvc.connected) : false
-            text: btSvc ? btSvc.deviceName : ""
+            visible: root.isPowered && root.isConnected
+            text: root.deviceName
             color: Theme.colors.text
             font.pixelSize: 13
             Layout.alignment: Qt.AlignVCenter

@@ -17,6 +17,12 @@ PanelWindow {
     property int actualVolume: 0
     property bool isMuted: false
 
+    // --- PROPIEDADES DE MÉTRICAS REALES ---
+    property int cpuUsage: 0
+    property int ramUsage: 0
+    property int diskUsage: 0
+    property var lastCpuStats: null
+
     // --- ACCIONES DEL SISTEMA ---
     Process { id: poweroffProc; command: ["systemctl", "poweroff"] }
     Process { id: rebootProc; command: ["systemctl", "reboot"] }
@@ -30,6 +36,50 @@ PanelWindow {
     // --- PROCESOS DE AUDIO Y BRILLO ---
     Process { id: setVolProc }
     Process { id: setBrightnessProc }
+
+    // --- PROCESOS DE MONITORIZACIÓN ---
+    Process {
+        id: cpuProc
+        command: ["bash", "-c", "head -n 1 /proc/stat"]
+        stdout: SplitParser {
+            onRead: (data) => {
+                let parts = data.trim().split(/\s+/).slice(1).map(Number)
+                let idle = parts[3] + parts[4]
+                let total = parts.reduce((a, b) => a + b, 0)
+
+                if (root.lastCpuStats) {
+                    let totalDiff = total - root.lastCpuStats.total
+                    let idleDiff = idle - root.lastCpuStats.idle
+                    if (totalDiff > 0) {
+                        root.cpuUsage = Math.max(0, Math.min(100, Math.round(((totalDiff - idleDiff) / totalDiff) * 100)))
+                    }
+                }
+                root.lastCpuStats = { total: total, idle: idle }
+            }
+        }
+    }
+
+    Process {
+        id: ramProc
+        command: ["bash", "-c", "free | awk '/Mem:/ {print int($3/$2 * 100)}'"]
+        stdout: SplitParser {
+            onRead: (data) => {
+                let val = parseInt(data.trim())
+                if (!isNaN(val)) root.ramUsage = val
+            }
+        }
+    }
+
+    Process {
+        id: diskProc
+        command: ["bash", "-c", "df / | awk 'NR==2 {print $5}' | tr -d '%'"]
+        stdout: SplitParser {
+            onRead: (data) => {
+                let val = parseInt(data.trim())
+                if (!isNaN(val)) root.diskUsage = val
+            }
+        }
+    }
 
     // --- PROCESO MODO NOCHE ---
     Process {
@@ -100,11 +150,25 @@ PanelWindow {
         }
     }
 
+    // Timer de refresco para audio (rápido)
     Timer {
         interval: 300
         running: root.visible
         repeat: true
         onTriggered: syncVolProc.running = true
+    }
+
+    // Timer de refresco para métricas del sistema (cada 2 segundos)
+    Timer {
+        interval: 2000
+        running: root.visible
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            cpuProc.running = true
+            ramProc.running = true
+            diskProc.running = true
+        }
     }
 
     anchors {
@@ -123,6 +187,9 @@ PanelWindow {
         syncVolProc.running = true
         checkNightModeProc.running = true
         checkGameModeProc.running = true
+        cpuProc.running = true
+        ramProc.running = true
+        diskProc.running = true
         if (root.wifiSvc && typeof root.wifiSvc.updateState === "function") root.wifiSvc.updateState()
         if (root.btSvc && typeof root.btSvc.updateState === "function") root.btSvc.updateState()
     }
@@ -528,28 +595,28 @@ PanelWindow {
 
             Item { Layout.preferredHeight: 5 }
 
-            // --- ESTADÍSTICAS ---
+            // --- ESTADÍSTICAS DINÁMICAS ---
             RowLayout {
                 Layout.fillWidth: true
                 
                 Column {
                     Layout.fillWidth: true
                     Text { anchors.horizontalCenter: parent.horizontalCenter; text: "CPU"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "10%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: root.cpuUsage + "%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
                 Rectangle { width: 1; height: 25; color: Theme.colors.surface0 }
                 
                 Column {
                     Layout.fillWidth: true
                     Text { anchors.horizontalCenter: parent.horizontalCenter; text: "RAM"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "23%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: root.ramUsage + "%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
                 Rectangle { width: 1; height: 25; color: Theme.colors.surface0 }
                 
                 Column {
                     Layout.fillWidth: true
                     Text { anchors.horizontalCenter: parent.horizontalCenter; text: "DISK"; font.pixelSize: 10; color: Theme.colors.subtext0; font.bold: true }
-                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: "2%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: root.diskUsage + "%"; font.pixelSize: 20; color: Theme.colors.text; font.bold: true }
                 }
             }
         }
