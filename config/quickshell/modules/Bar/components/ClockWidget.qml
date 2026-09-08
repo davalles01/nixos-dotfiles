@@ -5,6 +5,9 @@ import "../../../core"
 Rectangle {
     id: clockWidget
     
+    property var launcherInstance
+    property var targetScreen: null
+
     implicitWidth: clockText.implicitWidth + 24
     implicitHeight: clockText.implicitHeight + 12
 
@@ -27,6 +30,17 @@ Rectangle {
             running: true
             repeat: true
             onTriggered: clockText.text = Qt.formatDateTime(new Date(), "dd MMM - hh:mm")
+        }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            if (launcherInstance && typeof launcherInstance.toggleLauncher === "function") {
+                // Pasamos la pantalla explícita vinculada a este widget/barra
+                launcherInstance.toggleLauncher(clockWidget.targetScreen)
+            }
         }
     }
 }

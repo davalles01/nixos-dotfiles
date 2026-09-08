@@ -4,6 +4,7 @@ import Quickshell.Io
 import "core"
 import "modules/Bar"
 import "modules/WallpaperSelector"
+import "modules/launcher"
 
 Scope {
     id: rootShell
@@ -11,6 +12,12 @@ Scope {
     // Instancia del selector de fondos
     WallpaperSelector {
         id: wallpaperWin
+    }
+
+    // Instancia del Launcher
+    Launcher {
+        id: appLauncher
+        wallpaperWindow: wallpaperWin
     }
 
     // Handlers IPC globales
@@ -22,14 +29,41 @@ Scope {
     }
 
     IpcHandler {
+        target: "launcher"
+
+        // Permite recibir el índice o nombre de pantalla desde el IPC
+        function toggle(screenIndex) {
+            let activeScreen = null
+            if (screenIndex !== undefined && Quickshell.screens[screenIndex]) {
+                activeScreen = Quickshell.screens[screenIndex]
+            } else {
+                activeScreen = Quickshell.screens[0]
+            }
+            appLauncher.toggleLauncher(activeScreen)
+        }
+
+        function open(screenIndex) {
+            let activeScreen = null
+            if (screenIndex !== undefined && Quickshell.screens[screenIndex]) {
+                activeScreen = Quickshell.screens[screenIndex]
+            } else {
+                activeScreen = Quickshell.screens[0]
+            }
+            appLauncher.openLauncher(activeScreen)
+        }
+
+        function close() {
+            appLauncher.closeLauncher()
+        }
+    }
+
+    IpcHandler {
         target: "wallpaper"
 
-        // Comando: quickshell ipc call wallpaper toggle
         function toggle() {
             wallpaperWin.isOpen = !wallpaperWin.isOpen
         }
 
-        // Comando: quickshell ipc call wallpaper open
         function open() {
             wallpaperWin.isOpen = true
         }
@@ -46,6 +80,7 @@ Scope {
 
                 Bar {
                     screen: wrapper.modelData
+                    launcherInstance: appLauncher
                 }
             }
         }

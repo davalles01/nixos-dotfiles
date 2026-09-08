@@ -9,7 +9,7 @@ import "services"
 PanelWindow {
     id: topBar
 
-    // Quickshell asignará la pantalla automáticamente cuando se instancie desde shell.qml
+    property var launcherInstance
 
     anchors {
         top: true
@@ -59,6 +59,8 @@ PanelWindow {
     // Centro: Reloj
     ClockWidget {
         anchors.centerIn: parent
+        launcherInstance: topBar.launcherInstance
+        targetScreen: topBar.screen
     }
 
     // Lado Derecho: Controles del sistema
