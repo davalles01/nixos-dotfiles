@@ -10,6 +10,7 @@ let
 	fastfetch = "fastfetch";
 	rofi = "rofi";
 	quickshell = "quickshell";
+	wireplumber = "wireplumber";
   };
 in 
 
@@ -49,7 +50,9 @@ in
     shellAliases = {
       v = "nvim";
 	  nrs = "sudo nixos-rebuild switch --flake ~/nixos-dotfiles#nixos";
-    }; 
+	  ncg = "sudo nix-collect-garbage -d";
+      nrb = "sudo nixos-rebuild boot --flake ~/nixos-dotfiles#nixos";
+	}; 
 
 	initExtra = '' 
 		if [[ $- == *i* ]]; then

@@ -12,6 +12,11 @@ PanelWindow {
     property bool isOpen: false
     visible: isOpen
 
+    // Ocupa la capa superior de Wayland y pide el foco exclusivo del teclado
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+
     anchors {
         top: true
         bottom: true
@@ -22,11 +27,23 @@ PanelWindow {
 
     WallpaperService { id: wpSvc }
 
-    // Al abrir, refresca la lista y da el foco a la ventana para capturar ESC
+    // Al abrir, fuerza el foco activo con un Timer para sincronizar con el compositor
     onIsOpenChanged: {
         if (isOpen) {
             wpSvc.refresh()
-            mainContainer.forceActiveFocus()
+            focusTimer.restart()
+        }
+    }
+
+    Timer {
+        id: focusTimer
+        interval: 30
+        repeat: false
+        onTriggered: {
+            if (win.isOpen) {
+                focusScope.forceActiveFocus()
+                grid.forceActiveFocus()
+            }
         }
     }
 
@@ -41,158 +58,160 @@ PanelWindow {
         }
     }
 
-    // Ventana Contenedora Central
-    Rectangle {
-        id: mainContainer
+    // Ventana Contenedora Central envuelta en un FocusScope
+    FocusScope {
+        id: focusScope
         anchors.centerIn: parent
         width: 720
         height: 520
-        radius: 16
-        color: Theme.colors.base
-        border.color: Theme.colors.surface0
-        border.width: 2
         focus: true
 
-        // Captura global de tecla ESC para la ventana
-        Keys.onPressed: (event) => {
-            if (event.key === Qt.Key_Escape) {
-                win.isOpen = false
-                event.accepted = true
-            }
+        // Captura de ESC global dentro del Scope
+        Keys.onEscapePressed: {
+            win.isOpen = false
         }
 
-        // Evitar que los clics internos cierren la ventana
-        MouseArea { anchors.fill: parent }
-
-        ColumnLayout {
+        Rectangle {
             anchors.fill: parent
-            anchors.margins: 20
-            spacing: 16
+            radius: 16
+            color: Theme.colors.base
+            border.color: Theme.colors.surface0
+            border.width: 2
 
-            // Cabecera
-            RowLayout {
-                Layout.fillWidth: true
+            // Evita que los clics dentro de la ventana cierren el modal
+            MouseArea { anchors.fill: parent }
 
-                Text {
-                    text: "󰸉  Wallpaper Selector"
-                    color: Theme.colors.text
-                    font.pixelSize: 18
-                    font.bold: true
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 16
+
+                // Cabecera
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    Text {
+                        text: "󰸉  Wallpaper Selector"
+                        color: Theme.colors.text
+                        font.pixelSize: 18
+                        font.bold: true
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Text {
+                        text: "Navegar: Flechas | ESC: Salir"
+                        color: Theme.colors.subtext0
+                        font.pixelSize: 11
+                    }
                 }
 
-                Item { Layout.fillWidth: true }
+                // Grid de 3 columnas
+                GridView {
+                    id: grid
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    focus: true
 
-                Text {
-                    text: "ESC para salir"
-                    color: Theme.colors.subtext0
-                    font.pixelSize: 11
-                }
-            }
+                    cellWidth: grid.width / 3
+                    cellHeight: 180
 
-            // Grid de 3 columnas
-            GridView {
-                id: grid
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
-                focus: true
+                    model: wpSvc.wallpapers
 
-                cellWidth: grid.width / 3
-                cellHeight: 180
+                    // Selección con ENTER o ESPACIO
+                    Keys.onReturnPressed: applySelection()
+                    Keys.onEnterPressed: applySelection()
+                    Keys.onSpacePressed: applySelection()
 
-                model: wpSvc.wallpapers
-
-                // Tecla Enter para aplicar selección activa en el Grid
-                Keys.onPressed: (event) => {
-                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Select) {
+                    function applySelection() {
                         if (currentIndex >= 0 && currentIndex < wpSvc.wallpapers.length) {
                             wpSvc.setWallpaper(wpSvc.wallpapers[currentIndex])
                             win.isOpen = false
                         }
-                        event.accepted = true
                     }
-                }
 
-                delegate: Item {
-                    id: delegateItem
-                    width: grid.cellWidth
-                    height: grid.cellHeight
+                    delegate: Item {
+                        id: delegateItem
+                        width: grid.cellWidth
+                        height: grid.cellHeight
 
-                    property string fileName: modelData
-                    property bool isCurrent: wpSvc.currentWallpaper === fileName
-                    property bool isFocused: GridView.isCurrentItem
+                        property string fileName: modelData
+                        property bool isCurrent: wpSvc.currentWallpaper === fileName
+                        property bool isFocused: GridView.isCurrentItem
 
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: 8
-                        radius: 12
-                        
-                        color: isFocused ? Theme.colors.surface0 : Theme.colors.mantle
-                        border.color: isCurrent ? Theme.colors.mauve : (isFocused ? Theme.colors.blue : Theme.colors.surface1)
-                        border.width: isCurrent ? 3 : (isFocused ? 2 : 1)
-
-                        ColumnLayout {
+                        Rectangle {
                             anchors.fill: parent
                             anchors.margins: 8
-                            spacing: 6
+                            radius: 12
+                            
+                            color: isFocused ? Theme.colors.surface0 : Theme.colors.mantle
+                            border.color: isCurrent ? Theme.colors.mauve : (isFocused ? Theme.colors.blue : Theme.colors.surface1)
+                            border.width: isCurrent ? 3 : (isFocused ? 2 : 1)
 
-                            // Miniatura de la imagen
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                radius: 8
-                                clip: true
-                                color: Theme.colors.crust
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 6
 
-                                Image {
-                                    anchors.fill: parent
-                                    source: Qt.resolvedUrl("file://" + wpSvc.wallpaperDir + "/" + fileName)
-                                    fillMode: Image.PreserveAspectCrop
-                                    asynchronous: true
-                                }
-
-                                // Badge "Activo"
+                                // Miniatura de la imagen
                                 Rectangle {
-                                    visible: isCurrent
-                                    anchors.top: parent.top
-                                    anchors.right: parent.right
-                                    anchors.margins: 6
-                                    width: 22
-                                    height: 22
-                                    radius: 11
-                                    color: Theme.colors.mauve
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    radius: 8
+                                    clip: true
+                                    color: Theme.colors.crust
 
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "✓"
-                                        color: Theme.colors.crust
-                                        font.bold: true
-                                        font.pixelSize: 12
+                                    Image {
+                                        anchors.fill: parent
+                                        source: Qt.resolvedUrl("file://" + wpSvc.wallpaperDir + "/" + fileName)
+                                        fillMode: Image.PreserveAspectCrop
+                                        asynchronous: true
+                                    }
+
+                                    // Badge "Activo"
+                                    Rectangle {
+                                        visible: isCurrent
+                                        anchors.top: parent.top
+                                        anchors.right: parent.right
+                                        anchors.margins: 6
+                                        width: 22
+                                        height: 22
+                                        radius: 11
+                                        color: Theme.colors.mauve
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "✓"
+                                            color: Theme.colors.crust
+                                            font.bold: true
+                                            font.pixelSize: 12
+                                        }
                                     }
                                 }
+
+                                // Nombre del archivo
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: fileName
+                                    color: isCurrent ? Theme.colors.mauve : Theme.colors.text
+                                    font.pixelSize: 11
+                                    font.bold: isCurrent || isFocused
+                                    elide: Text.ElideMiddle
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
                             }
 
-                            // Nombre del archivo
-                            Text {
-                                Layout.fillWidth: true
-                                text: fileName
-                                color: isCurrent ? Theme.colors.mauve : Theme.colors.text
-                                font.pixelSize: 11
-                                font.bold: isCurrent || isFocused
-                                elide: Text.ElideMiddle
-                                horizontalAlignment: Text.AlignHCenter
-                            }
-                        }
-
-                        // Interacción con Ratón
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onEntered: grid.currentIndex = index
-                            onClicked: {
-                                wpSvc.setWallpaper(fileName)
-                                win.isOpen = false
+                            // Interacción con Ratón
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onEntered: grid.currentIndex = index
+                                onClicked: {
+                                    wpSvc.setWallpaper(fileName)
+                                    win.isOpen = false
+                                }
                             }
                         }
                     }

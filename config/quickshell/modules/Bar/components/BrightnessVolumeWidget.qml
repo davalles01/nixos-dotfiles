@@ -58,13 +58,19 @@ Rectangle {
     Process {
         id: micProc
         command: ["sh", "-c", "
-            MIC_INFO=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null)
-            MUTED=0
-            if echo \"$MIC_INFO\" | grep -q \"\[MUTED\]\"; then MUTED=1; fi
-            
+            # 1. Verificar si hay streams de grabación activos
             IN_USE=0
-            if pw-dump 2>/dev/null | grep -q '\"media.class\": \"Stream/Input/Audio\"'; then IN_USE=1; fi
-            
+            if pw-cli list-objects Node 2>/dev/null | grep -q 'media.class = \"Stream/Input/Audio\"'; then
+                IN_USE=1
+            fi
+
+            # 2. Verificar estado de mute (fuente por defecto o cualquier captura)
+            MUTED=0
+            MIC_STATE=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null)
+            if echo \"$MIC_STATE\" | grep -qi 'MUTED'; then
+                MUTED=1
+            fi
+
             echo \"$IN_USE $MUTED\"
         "]
         stdout: SplitParser {
@@ -85,7 +91,8 @@ Rectangle {
         running: true
         stdout: SplitParser {
             onRead: data => {
-                if (data.includes("changed") || data.includes("node") || data.includes("link")) {
+                let line = data.trim()
+                if (line.includes("changed") || line.includes("node") || line.includes("info") || line.includes("params")) {
                     volProc.running = true
                     micProc.running = true
                 }
@@ -115,7 +122,7 @@ Rectangle {
         Text {
             visible: root.micInUse
             text: root.micIsMuted ? "󰍭" : "󰍬"
-            color: root.micIsMuted ? Theme.colors.red : Theme.colors.peach ?? Theme.colors.maroon
+            color: root.micIsMuted ? Theme.colors.red : (Theme.colors.peach ?? Theme.colors.maroon)
             Layout.alignment: Qt.AlignVCenter
         }
 
