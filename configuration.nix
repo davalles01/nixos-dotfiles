@@ -74,12 +74,8 @@
 
 	jack.enable = true;
 
-	wireplumber.enable = true;
+	wireplumber.enable = true;  
   };
-
-  boot.extraModprobeConfig = ''
-    options snd-hda-intel model=dell-headset-multi
-  '';
 
   services.libinput.enable = true;
 
@@ -133,6 +129,7 @@
 	fprintd
 	polkit_gnome
 
+	alsa-utils
   ];
 
   environment.pathsToLink = [ "/libexec" ];

@@ -10,7 +10,6 @@ let
 	fastfetch = "fastfetch";
 	rofi = "rofi";
 	quickshell = "quickshell";
-	wireplumber = "wireplumber";
   };
 in 
 
