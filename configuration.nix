@@ -11,6 +11,8 @@
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.blacklistedKernelModules = [ "ucsi_acpi" ];
 
+  boot.kernelParams = [ "amdgpu.dcdebugmask=0x10" ];
+
   nixpkgs.config.allowUnfree = true;
 
   # Battery

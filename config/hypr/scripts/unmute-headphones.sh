@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-amixer -c 1 set Headphone 100% unmute > /home/dani/Desktop/test.txt 2>&1
+sleep 3
 
-echo "Done" >> /home/dani/Desktop/test.txt
+amixer -c 1 set Headphone 100% unmute 
+amixer -c 0 set Headphone 100% unmute
+
