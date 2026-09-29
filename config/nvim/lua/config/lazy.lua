@@ -35,6 +35,6 @@ require("lazy").setup({
   rocks = {enabled = false },
 })
 
-vim.cmd.colorscheme("catppuccin")
+vim.cmd.colorscheme("moonfly")
 
 local builtin = require('telescope.builtin')

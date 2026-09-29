@@ -13,27 +13,24 @@ PanelWindow {
     property string query: ""
     property int selectedIndex: 0
 
-    // Configuración para flotar sobre las demás ventanas (modo no-tiling)
+    // Configuración para flotar sobre las demás ventanas
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: shouldShow ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     
-    // Evita que el compositor reserve espacio en pantalla (desactiva el tiling)
+    // Desactiva el tiling
     exclusionMode: ExclusionMode.Ignore
 
-    // Fondo transparente para evitar el rectángulo blanco de Qt
+    // Fondo transparente
     color: "transparent"
 
-    // Posicionamiento en la parte superior central
+    // IMPORTANTE: Ocupar toda la pantalla para capturar clics fuera del panel
     anchors {
         top: true
-    }
-    
-    margins {
-        top: 45
+        bottom: true
+        left: true
+        right: true
     }
 
-    implicitWidth: 500
-    implicitHeight: shouldShow || panel.opacity > 0 ? panelColumn.implicitHeight + 40 : 0
     visible: shouldShow || panel.opacity > 0
 
     // Referencia al selector de fondos
@@ -82,8 +79,8 @@ PanelWindow {
             comment: "Open nmtui in terminal",
             glyph: "󰖩",
             type: "action",
-			onTriggered: () => Quickshell.execDetached(["kitty", "--class", "nmtui-popup", "nmtui"])
-		}
+            onTriggered: () => Quickshell.execDetached(["kitty", "--class", "nmtui-popup", "nmtui"])
+        }
     ]
 
     readonly property var favoriteApps: {
@@ -232,9 +229,24 @@ PanelWindow {
             selectedIndex = Math.max(0, visibleEntries.length - 1)
     }
 
+    // 1. CAPA EXTERNA: Detecta clics fuera del launcher para cerrarlo
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onClicked: root.closeLauncher()
+    }
+
+    // 2. PANEL DEL LAUNCHER
     FocusScope {
         id: panel
-        anchors.fill: parent
+        
+        // Centrado superior con ancho fijo y alto dinámico
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 45
+        width: 500
+        height: panelColumn.implicitHeight + 36
+
         property real revealOffset: shouldShow ? 0 : -20
         scale: shouldShow ? 1.0 : 0.97
         opacity: shouldShow ? 1.0 : 0.0
@@ -265,6 +277,17 @@ PanelWindow {
             color: root.cSurface
             border.color: root.cBorder
             border.width: 1
+
+            // Absorbe los clics dentro del panel para que NO lleguen al MouseArea externo
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: (mouse) => {
+                    if (mouse.button === Qt.RightButton) {
+                        root.closeLauncher()
+                    }
+                }
+            }
 
             ColumnLayout {
                 id: panelColumn
@@ -319,7 +342,7 @@ PanelWindow {
 
                     Column {
                         id: listColumn
-                        width: root.width - 36
+                        width: panel.width - 36
                         spacing: 8
 
                         Repeater {
@@ -391,15 +414,6 @@ PanelWindow {
                         }
                     }
                 }
-            }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.RightButton
-            onClicked: mouse => {
-                if (mouse.button === Qt.RightButton)
-                    root.closeLauncher()
             }
         }
     }

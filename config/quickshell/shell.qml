@@ -31,28 +31,31 @@ Scope {
     IpcHandler {
         target: "launcher"
 
-        // Permite recibir el índice o nombre de pantalla desde el IPC
-        function toggle(screenIndex) {
-            let activeScreen = null
-            if (screenIndex !== undefined && Quickshell.screens[screenIndex]) {
-                activeScreen = Quickshell.screens[screenIndex]
-            } else {
-                activeScreen = Quickshell.screens[0]
-            }
+        // Opción 1: Llamada sin parámetros desde terminal (qs ipc call launcher toggle)
+        function toggle(): void {
+            let activeScreen = Quickshell.screens[0]
             appLauncher.toggleLauncher(activeScreen)
         }
 
-        function open(screenIndex) {
-            let activeScreen = null
-            if (screenIndex !== undefined && Quickshell.screens[screenIndex]) {
-                activeScreen = Quickshell.screens[screenIndex]
-            } else {
-                activeScreen = Quickshell.screens[0]
-            }
+        // Opción 2: Llamada especificando el índice del monitor (qs ipc call launcher toggleOnScreen 0)
+        function toggleOnScreen(screenIndex: int): void {
+            let activeScreen = Quickshell.screens[screenIndex] || Quickshell.screens[0]
+            appLauncher.toggleLauncher(activeScreen)
+        }
+
+        // Opción 1: Abrir sin parámetros
+        function open(): void {
+            let activeScreen = Quickshell.screens[0]
             appLauncher.openLauncher(activeScreen)
         }
 
-        function close() {
+        // Opción 2: Abrir en un monitor específico
+        function openOnScreen(screenIndex: int): void {
+            let activeScreen = Quickshell.screens[screenIndex] || Quickshell.screens[0]
+            appLauncher.openLauncher(activeScreen)
+        }
+
+        function close(): void {
             appLauncher.closeLauncher()
         }
     }
