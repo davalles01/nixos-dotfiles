@@ -121,7 +121,6 @@
 	xfce.thunar
 	solaar
     git
-	rofi
 	wl-clipboard
 	brightnessctl 
 	playerctl 
@@ -132,6 +131,9 @@
 	polkit_gnome
 
 	alsa-utils
+
+	matugen
+	jq
   ];
 
   environment.pathsToLink = [ "/libexec" ];

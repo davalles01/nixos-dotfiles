@@ -371,13 +371,38 @@ PanelWindow {
                                     anchors.margins: 10
                                     spacing: 12
 
-                                    Text {
-                                        text: delegateRoot.modelData.type === "action"
-                                            ? (delegateRoot.modelData.glyph ?? "󰣆")
-                                            : ((delegateRoot.modelData.name ?? "?").slice(0, 1).toUpperCase())
-                                        font.pixelSize: 16
-                                        font.weight: Font.DemiBold
-                                        color: root.cPrimary
+                                    // Contenedor visual del Icono / Glifo
+                                    Item {
+                                        Layout.preferredWidth: 28
+                                        Layout.preferredHeight: 28
+                                        Layout.alignment: Qt.AlignVCenter
+
+                                        // Icono de la aplicación mediante el proveedor de imágenes de Quickshell
+                                        Image {
+                                            id: appIcon
+                                            anchors.fill: parent
+                                            source: {
+                                                const iconName = delegateRoot.modelData.icon ?? ""
+                                                if (!iconName) return ""
+                                                if (iconName.startsWith("/") || iconName.startsWith("file://"))
+                                                    return iconName
+                                                return "image://icon/" + iconName
+                                            }
+                                            fillMode: Image.PreserveAspectFit
+                                            visible: delegateRoot.modelData.type !== "action" && status === Image.Ready
+                                        }
+
+                                        // Glifo o inicial de respaldo si es acción o falla el icono
+                                        Text {
+                                            anchors.centerIn: parent
+                                            visible: delegateRoot.modelData.type === "action" || (delegateRoot.modelData.icon ?? "") === "" || appIcon.status === Image.Error
+                                            text: delegateRoot.modelData.type === "action"
+                                                ? (delegateRoot.modelData.glyph ?? "󰣆")
+                                                : ((delegateRoot.modelData.name ?? "?").slice(0, 1).toUpperCase())
+                                            font.pixelSize: 18
+                                            font.weight: Font.DemiBold
+                                            color: root.cPrimary
+                                        }
                                     }
 
                                     ColumnLayout {

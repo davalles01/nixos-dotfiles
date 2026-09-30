@@ -6,35 +6,57 @@ import "./Themes"
 QtObject {
     id: root
 
-    // 1. Instanciar los temas
+    // 1. Instancias estáticas de temas fijos
     readonly property QtObject mocha: Mocha {}
     readonly property QtObject nord: Nord {}
     readonly property QtObject tokyo: Tokyo {}
     readonly property QtObject latte: Latte {}
 
-    // 2. Variable con el tema activo
-    property QtObject currentTheme: mocha
+    // 2. Cargador dinámico para CurrentTheme.qml
+    property Loader themeLoader: Loader {
+        source: Qt.resolvedUrl("./Themes/CurrentTheme.qml")
+    }
 
-    // 3. Exponer 'colors' dinámicamente mediante binding
+    // 3. Referencia al tema dinámico cargado
+    readonly property QtObject dynamicTheme: themeLoader.item ? themeLoader.item : mocha
+
+    // 4. Tema activo (por defecto el dinámico)
+    property QtObject currentTheme: dynamicTheme
+
+    // 5. Propiedades expuestas
     readonly property QtObject colors: currentTheme ? currentTheme.colors : mocha.colors
+    readonly property string logo: currentTheme && currentTheme.logo ? currentTheme.logo : "nixos-black.svg"
 
-	// Propiedad dinámica para el logo según el tema actual
-    readonly property string logo: currentTheme ? currentTheme.logo : mocha.logo
+    // 6. Recarga en caliente del archivo CurrentTheme.qml
+    function reloadCurrentTheme() {
+        const currentSource = themeLoader.source
+        themeLoader.source = ""
+        // Forzamos la recarga reactiva de la URL
+        Qt.callLater(() => {
+            themeLoader.source = currentSource
+            currentTheme = themeLoader.item ? themeLoader.item : mocha
+        })
+    }
 
-    // 4. Funciones de cambio de tema
+    // 7. Funciones de selección de tema
     function setTheme(themeName) {
         switch (themeName.toLowerCase()) {
-            case "nord": currentTheme = nord; break;
-            case "tokyo": currentTheme = tokyo; break;
-            case "latte": currentTheme = latte; break;
-            default: currentTheme = mocha; break;
+            case "current":
+            case "auto":
+                reloadCurrentTheme()
+                break
+            case "nord": currentTheme = nord; break
+            case "tokyo": currentTheme = tokyo; break
+            case "latte": currentTheme = latte; break
+            default: currentTheme = mocha; break
         }
     }
 
     function cycleTheme() {
-        if (currentTheme === mocha) currentTheme = nord
+        if (currentTheme === dynamicTheme) currentTheme = mocha
+        else if (currentTheme === mocha) currentTheme = nord
         else if (currentTheme === nord) currentTheme = tokyo
         else if (currentTheme === tokyo) currentTheme = latte
-        else currentTheme = mocha
+        else currentTheme = dynamicTheme
     }
 }

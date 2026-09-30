@@ -8,7 +8,6 @@ let
     nvim = "nvim"; 
 	kitty = "kitty"; 
 	fastfetch = "fastfetch";
-	rofi = "rofi";
 	quickshell = "quickshell";
   };
 in 

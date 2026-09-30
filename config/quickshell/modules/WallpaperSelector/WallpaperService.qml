@@ -2,6 +2,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../../core"
 
 QtObject {
     id: root
@@ -10,6 +11,7 @@ QtObject {
     property string currentWallpaper: ""
     readonly property string wallpaperDir: Quickshell.env("HOME") + "/Wallpapers"
     readonly property string confPath: Quickshell.env("HOME") + "/nixos-dotfiles/config/hypr/hyprpaper.conf"
+    readonly property string themeScriptPath: Quickshell.env("HOME") + "/nixos-dotfiles/config/quickshell/scripts/update-theme.sh"
 
     // Proceso 1: Listar imágenes del directorio
     property Process listProc: Process {
@@ -38,15 +40,16 @@ QtObject {
         readConfProc.running = true
     }
 
-    // Proceso 3: Cambiar fondo instantáneamente en hyprpaper y actualizar hyprpaper.conf
+    // Proceso 3: Cambiar fondo en hyprpaper, actualizar hyprpaper.conf y ejecutar update-theme.sh
     function setWallpaper(fileName) {
         if (!fileName) return
         root.currentWallpaper = fileName
 
         var fullPath = root.wallpaperDir + "/" + fileName
 
-        // Comando Bash que recarga hyprpaper inmediatamente en todos los monitores (",/ruta")
-        // y reescribe hyprpaper.conf
+        // 1. Recarga hyprpaper inmediatamente en todos los monitores
+        // 2. Reescribe hyprpaper.conf
+        // 3. Ejecuta el script de actualización de colores para Quickshell
         var script = `
             hyprctl hyprpaper reload ",${fullPath}"
             
@@ -54,13 +57,22 @@ QtObject {
 preload = ${fullPath}
 wallpaper = ,${fullPath}
 EOF
+
+            if [ -x "${root.themeScriptPath}" ]; then
+                "${root.themeScriptPath}" "${fullPath}"
+            fi
         `
 
         applyProc.command = ["bash", "-c", script]
         applyProc.running = true
     }
 
-    property Process applyProc: Process {}
+    // Al finalizar la ejecución del script en bash, notifica al Singleton Theme para recargar el archivo en caliente
+    property Process applyProc: Process {
+        onExited: {
+            Theme.reloadCurrentTheme()
+        }
+    }
 
     Component.onCompleted: refresh()
 }
