@@ -161,13 +161,16 @@ PanelWindow {
     function closeLauncher() {
         shouldShow = false
         query = ""
+		searchField.text = ""
         selectedIndex = 0
     }
 
     function openLauncher(optScreen) {
         if (optScreen) {
             screen = optScreen
-        }
+		}
+		query = ""
+		searchField.text = ""
         shouldShow = true
         selectedIndex = 0
         focusTimer.restart()

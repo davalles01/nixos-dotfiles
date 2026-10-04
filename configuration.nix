@@ -11,7 +11,23 @@
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.blacklistedKernelModules = [ "ucsi_acpi" ];
 
-  boot.kernelParams = [ "amdgpu.dcdebugmask=0x10" ];
+  boot.kernelParams = [
+    # 1. Desactiva Panel Self Refresh (PSR)
+    "amdgpu.dcdebugmask=0x10"
+
+    # 2. Desactiva ABM (Adaptive Backlight Management - culpable directo en fondos oscuros)
+    "amdgpu.abmlevel=0"
+
+    # 3. Desactiva la fluctuación dinámica del reloj de pantalla/VRAM al ahorrar energía
+    "amdgpu.ppfeaturemask=0xfffd7fff"
+
+	# Desactiva el ahorro de energía en el bus PCIe de la GPU AMD
+	"pcie_aspm=off"
+	"amdgpu.aspm=0"
+
+	# Evita que la pantalla entre en estados deep-sleep de energía
+	"amdgpu.runpm=0"
+  ];
 
   nixpkgs.config.allowUnfree = true;
 

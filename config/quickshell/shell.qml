@@ -5,9 +5,20 @@ import "core"
 import "modules/Bar"
 import "modules/WallpaperSelector"
 import "modules/launcher"
+import "modules/VolumeOSD"
+
+// Submódulos del componente overview con alias en Mayúscula para evitar el error de QML
+import "./modules/overview/modules/overview" as OverviewModule
+import "./modules/overview/services"
+import "./modules/overview/common"
+import "./modules/overview/common/widgets"
 
 Scope {
     id: rootShell
+
+	VolumeOSD {         
+        id: volumeOSD
+    }
 
     // Instancia del selector de fondos
     WallpaperSelector {
@@ -18,6 +29,11 @@ Scope {
     Launcher {
         id: appLauncher
         wallpaperWindow: wallpaperWin
+    }
+
+    // Instancia del componente Overview usando el alias
+    OverviewModule.Overview {
+        id: overviewWin
     }
 
     // Handlers IPC globales
@@ -31,25 +47,21 @@ Scope {
     IpcHandler {
         target: "launcher"
 
-        // Opción 1: Llamada sin parámetros desde terminal (qs ipc call launcher toggle)
         function toggle(): void {
             let activeScreen = Quickshell.screens[0]
             appLauncher.toggleLauncher(activeScreen)
         }
 
-        // Opción 2: Llamada especificando el índice del monitor (qs ipc call launcher toggleOnScreen 0)
         function toggleOnScreen(screenIndex: int): void {
             let activeScreen = Quickshell.screens[screenIndex] || Quickshell.screens[0]
             appLauncher.toggleLauncher(activeScreen)
         }
 
-        // Opción 1: Abrir sin parámetros
         function open(): void {
             let activeScreen = Quickshell.screens[0]
             appLauncher.openLauncher(activeScreen)
         }
 
-        // Opción 2: Abrir en un monitor específico
         function openOnScreen(screenIndex: int): void {
             let activeScreen = Quickshell.screens[screenIndex] || Quickshell.screens[0]
             appLauncher.openLauncher(activeScreen)
@@ -72,7 +84,7 @@ Scope {
         }
     }
 
-    // Iterador de monitores con enlace estricto de pantalla
+    // Iterador de monitores
     Variants {
         model: Quickshell.screens
 
