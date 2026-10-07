@@ -40,7 +40,11 @@ PanelWindow {
         btSvc: btService
     }
 
-    // Lado Izquierdo: Workspaces y MediaWidget
+    CalendarPopup {
+        id: calendarPopup
+    }
+
+    // Lado Izquierdo: Workspaces, MediaWidget y LauncherWidget
     RowLayout {
         anchors.left: parent.left
         anchors.leftMargin: 12
@@ -54,13 +58,18 @@ PanelWindow {
         MediaWidget {
             Layout.alignment: Qt.AlignVCenter
         }
+
+        LauncherWidget {
+            Layout.alignment: Qt.AlignVCenter
+            launcherInstance: topBar.launcherInstance
+            targetScreen: topBar.screen
+        }
     }
 
     // Centro: Reloj
     ClockWidget {
         anchors.centerIn: parent
-        launcherInstance: topBar.launcherInstance
-        targetScreen: topBar.screen
+        calendarPopup: calendarPopup
     }
 
     // Lado Derecho: Controles del sistema

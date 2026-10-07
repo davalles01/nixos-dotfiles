@@ -1,12 +1,10 @@
 import QtQuick
-import Quickshell
 import "../../../core"
 
 Rectangle {
     id: clockWidget
-    
-    property var launcherInstance
-    property var targetScreen: null
+
+    property var calendarPopup
 
     implicitWidth: clockText.implicitWidth + 24
     implicitHeight: clockText.implicitHeight + 12
@@ -37,9 +35,8 @@ Rectangle {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            if (launcherInstance && typeof launcherInstance.toggleLauncher === "function") {
-                // Pasamos la pantalla explícita vinculada a este widget/barra
-                launcherInstance.toggleLauncher(clockWidget.targetScreen)
+            if (calendarPopup && typeof calendarPopup.toggle === "function") {
+                calendarPopup.toggle()
             }
         }
     }
