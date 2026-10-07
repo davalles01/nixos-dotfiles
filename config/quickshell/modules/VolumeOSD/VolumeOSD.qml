@@ -15,7 +15,6 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
 
-    // Temporizador para ocultar el OSD tras 1.5s
     Timer {
         id: hideTimer
         interval: 1500
@@ -23,7 +22,6 @@ PanelWindow {
         onTriggered: root.visible = false
     }
 
-    // Proceso para consultar y actualizar el volumen únicamente bajo demanda
     Process {
         id: syncVolProc
         command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
@@ -40,7 +38,6 @@ PanelWindow {
                     root.actualVolume = vol
                     root.isMuted = muted
 
-                    // Mostrar el OSD y reiniciar el temporizador
                     root.visible = true
                     hideTimer.restart()
                 }
@@ -48,12 +45,10 @@ PanelWindow {
         }
     }
 
-    // Handler IPC: Invocado únicamente desde las teclas multimedia
     IpcHandler {
         target: "volume"
 
         function raise(): void {
-            // Sin límite asignado: incrementa libremente
             changeVolProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%+"]
             changeVolProc.running = true
         }
@@ -72,19 +67,18 @@ PanelWindow {
     Process {
         id: changeVolProc
         onExited: {
-            // Tras ejecutar el cambio, leemos el estado actual para sincronizar y mostrar el OSD
             syncVolProc.running = true
         }
     }
 
-    // Posicionamiento en el lateral derecho
     anchors {
         right: true
     }
     margins.right: 20
 
-    width: 56
-    height: 240
+    // Cambio a implicitWidth / implicitHeight
+    implicitWidth: 56
+    implicitHeight: 240
     color: "transparent"
 
     Rectangle {
@@ -99,17 +93,16 @@ PanelWindow {
             anchors.margins: 10
             spacing: 10
 
-            // 1. Icono de volumen centrado
             Text {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
                 horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 text: root.isMuted ? "󰝟" : (root.actualVolume > 50 ? "󰕾" : "󰖀")
                 font.pixelSize: 18
                 color: root.isMuted ? Theme.colors.subtext1 : Theme.colors.peach
             }
 
-            // 2. Carril de Volumen (Track + Fill)
             Item {
                 id: trackContainer
                 Layout.fillWidth: true
@@ -127,7 +120,6 @@ PanelWindow {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         
-                        // La barra visual mantendrá el llenado completo al llegar o superar el 100%
                         height: parent.height * Math.min(Math.max(root.actualVolume / 100.0, 0.0), 1.0)
                         color: root.isMuted ? Theme.colors.surface2 : Theme.colors.peach
                         radius: 12
@@ -139,11 +131,11 @@ PanelWindow {
                 }
             }
 
-            // 3. Texto del porcentaje (muestra el valor numérico real, e.g. 135%)
             Text {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
                 horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 text: root.actualVolume + "%"
                 font.pixelSize: 11
                 font.bold: true

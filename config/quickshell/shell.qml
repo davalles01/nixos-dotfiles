@@ -6,6 +6,7 @@ import "modules/Bar"
 import "modules/WallpaperSelector"
 import "modules/launcher"
 import "modules/VolumeOSD"
+import "modules/BrightnessOSD"
 
 // Submódulos del componente overview con alias en Mayúscula para evitar el error de QML
 import "./modules/overview/modules/overview" as OverviewModule
@@ -19,6 +20,10 @@ Scope {
 	VolumeOSD {         
         id: volumeOSD
     }
+	
+	BrightnessOSD {         
+        id: brightnessOSD
+	}
 
     // Instancia del selector de fondos
     WallpaperSelector {
