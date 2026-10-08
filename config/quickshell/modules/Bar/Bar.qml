@@ -10,6 +10,8 @@ PanelWindow {
     id: topBar
 
     property var launcherInstance
+    property var notifServer: null
+    property var controlCenterInstance: null // Recibido desde shell.qml
 
     anchors {
         top: true
@@ -40,10 +42,6 @@ PanelWindow {
         btSvc: btService
     }
 
-    CalendarPopup {
-        id: calendarPopup
-    }
-
     // Lado Izquierdo: Workspaces, MediaWidget y LauncherWidget
     RowLayout {
         anchors.left: parent.left
@@ -69,7 +67,7 @@ PanelWindow {
     // Centro: Reloj
     ClockWidget {
         anchors.centerIn: parent
-        calendarPopup: calendarPopup
+        controlCenterPopup: topBar.controlCenterInstance // Enlazamos correctamente con la instancia global
     }
 
     // Lado Derecho: Controles del sistema

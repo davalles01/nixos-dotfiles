@@ -1,14 +1,16 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Notifications
 import "core"
 import "modules/Bar"
+import "modules/Bar/components/Popups"
 import "modules/WallpaperSelector"
 import "modules/launcher"
 import "modules/VolumeOSD"
 import "modules/BrightnessOSD"
+import "modules/Notifications"
 
-// Submódulos del componente overview con alias en Mayúscula para evitar el error de QML
 import "./modules/overview/modules/overview" as OverviewModule
 import "./modules/overview/services"
 import "./modules/overview/common"
@@ -17,31 +19,89 @@ import "./modules/overview/common/widgets"
 Scope {
     id: rootShell
 
-	VolumeOSD {         
-        id: volumeOSD
-    }
-	
-	BrightnessOSD {         
-        id: brightnessOSD
+    property var activeNotifications: []
+
+	// Función global para remover notificaciones manteniendo la reactividad
+	function removeNotification(notif) {
+		if (notif && typeof notif.dismiss === "function") {
+			notif.dismiss();
+		}
+		// Reasignamos creando un nuevo array filtrado para notificar los cambios a QML
+		activeNotifications = activeNotifications.filter(item => item !== notif);
 	}
 
-    // Instancia del selector de fondos
+	function clearAllNotifications() {
+		for (let i = 0; i < activeNotifications.length; i++) {
+			if (activeNotifications[i] && typeof activeNotifications[i].dismiss === "function") {
+				activeNotifications[i].dismiss();
+			}
+		}
+		activeNotifications = [];
+	}
+
+	NotificationServer {
+		id: notifServer
+		
+		onNotification: (notif) => {
+			console.log("[Quickshell] Notificación recibida:", notif.summary);
+			notif.tracked = true;
+			// Reasignamos el array añadiendo el nuevo elemento al principio
+			activeNotifications = [notif, ...activeNotifications];
+		}
+	}
+
+	ControlCenterPopup {
+		id: controlCenter
+		notifServer: activeNotifications
+		// Pasamos las funciones de callback para borrar
+		onClearAllRequested: clearAllNotifications()
+		onRemoveRequested: (notif) => removeNotification(notif)
+	}
+
+    NotificationToast {
+        id: notificationToast
+        notifServer: notifServer
+    }
+
+    VolumeOSD {          
+        id: volumeOSD
+    }
+    
+    BrightnessOSD {          
+        id: brightnessOSD
+    }
+
     WallpaperSelector {
         id: wallpaperWin
     }
 
-    // Instancia del Launcher
     Launcher {
         id: appLauncher
         wallpaperWindow: wallpaperWin
     }
 
-    // Instancia del componente Overview usando el alias
     OverviewModule.Overview {
         id: overviewWin
     }
 
-    // Handlers IPC globales
+    // IPC para abrir/cerrar el Control Center
+    IpcHandler {
+        target: "controlcenter"
+
+        function toggle(): void {
+            controlCenter.toggle()
+        }
+
+        function open(): void {
+            controlCenter.visible = true
+            controlCenter.forceActiveFocus()
+        }
+
+        function close(): void {
+            controlCenter.visible = false
+        }
+    }
+
     IpcHandler {
         target: "theme"
 
@@ -89,7 +149,6 @@ Scope {
         }
     }
 
-    // Iterador de monitores
     Variants {
         model: Quickshell.screens
 
@@ -101,6 +160,8 @@ Scope {
                 Bar {
                     screen: wrapper.modelData
                     launcherInstance: appLauncher
+                    notifServer: notifServer
+                    controlCenterInstance: controlCenter // Pasamos la referencia global hacia la barra
                 }
             }
         }

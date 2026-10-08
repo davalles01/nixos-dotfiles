@@ -4,7 +4,7 @@ import "../../../core"
 Rectangle {
     id: clockWidget
 
-    property var calendarPopup
+    property var controlCenterPopup
 
     implicitWidth: clockText.implicitWidth + 24
     implicitHeight: clockText.implicitHeight + 12
@@ -35,8 +35,8 @@ Rectangle {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            if (calendarPopup && typeof calendarPopup.toggle === "function") {
-                calendarPopup.toggle()
+            if (controlCenterPopup && typeof controlCenterPopup.toggle === "function") {
+                controlCenterPopup.toggle()
             }
         }
     }
