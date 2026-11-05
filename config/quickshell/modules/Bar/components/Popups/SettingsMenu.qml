@@ -85,9 +85,11 @@ PanelWindow {
     Process {
         id: nightModeProc
         function toggle(enableNightMode) {
-            let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/shaders.conf"
-            let shaderPath = "$HOME/nixos-dotfiles/config/hypr/conf/shaders/blue-light-filter.frag"
-            let content = enableNightMode ? `decoration { \n    screen_shader = ${shaderPath} \n}` : ""
+            let confFile = "/home/dani/nixos-dotfiles/config/hypr/conf/shaders.lua"
+            let shaderPath = "/home/dani/nixos-dotfiles/config/hypr/conf/shaders/blue-light-filter.frag"
+            
+            // Si está activo, escribimos la configuración con hl.config. Si no, dejamos el archivo vacío.
+            let content = enableNightMode ? `hl.config({\n    decoration = {\n        screen_shader = "${shaderPath}"\n    }\n})` : ""
             
             let cmd = `echo '${content}' > ${confFile} && hyprctl reload`
             command = ["bash", "-c", cmd]
@@ -108,12 +110,12 @@ PanelWindow {
     Process {
         id: gameModeProc
         function toggle(enableGameMode) {
-            let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"
-            let targetFile = enableGameMode 
-                ? "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig-gamemode.conf" 
-                : "~/nixos-dotfiles/config/hypr/conf/keybindings/daniConfig.conf"
+            let confFile = "$HOME/nixos-dotfiles/config/hypr/conf/keybinding.lua"
+            let targetModule = enableGameMode 
+                ? "conf.keybindings.daniConfig-gamemode" 
+                : "conf.keybindings.daniConfig"
 
-            let cmd = `sed -i 's|^source = .*|source = ${targetFile}|' ${confFile} && hyprctl reload`
+            let cmd = `sed -i 's|.*|require("${targetModule}")|' ${confFile} && hyprctl reload`
             command = ["bash", "-c", cmd]
             running = true
         }
@@ -122,7 +124,7 @@ PanelWindow {
     // Proceso para detectar estado real del Modo Juego
     Process {
         id: checkGameModeProc
-        command: ["bash", "-c", "grep -q 'daniConfig-gamemode.conf' $HOME/nixos-dotfiles/config/hypr/conf/keybinding.conf"]
+        command: ["bash", "-c", "grep -q 'daniConfig-gamemode' $HOME/nixos-dotfiles/config/hypr/conf/keybinding.lua"]
         onExited: (exitCode) => {
             gameModeWidget.isGameMode = (exitCode === 0)
         }

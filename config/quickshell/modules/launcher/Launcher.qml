@@ -71,7 +71,7 @@ PanelWindow {
             comment: "Open your home directory",
             glyph: "󰉋",
             type: "action",
-            onTriggered: () => Quickshell.execDetached(["xdg-open", Quickshell.env("HOME")])
+            onTriggered: () => Quickshell.execDetached(["thunar", Quickshell.env("HOME")])
         },
         {
             id: "action-network",

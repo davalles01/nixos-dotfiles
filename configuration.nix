@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports =
@@ -13,20 +13,20 @@
 
   boot.kernelParams = [
     # 1. Desactiva Panel Self Refresh (PSR)
-    "amdgpu.dcdebugmask=0x10"
+    # "amdgpu.dcdebugmask=0x10"
 
     # 2. Desactiva ABM (Adaptive Backlight Management - culpable directo en fondos oscuros)
-    "amdgpu.abmlevel=0"
+    # "amdgpu.abmlevel=0"
 
     # 3. Desactiva la fluctuación dinámica del reloj de pantalla/VRAM al ahorrar energía
-    "amdgpu.ppfeaturemask=0xfffd7fff"
+    # "amdgpu.ppfeaturemask=0xfffd7fff"
 
 	# Desactiva el ahorro de energía en el bus PCIe de la GPU AMD
-	"pcie_aspm=off"
-	"amdgpu.aspm=0"
+	# "pcie_aspm=off"
+	# "amdgpu.aspm=0"
 
 	# Evita que la pantalla entre en estados deep-sleep de energía
-	"amdgpu.runpm=0"
+	# "amdgpu.runpm=0"
   ];
 
   nixpkgs.config.allowUnfree = true;
@@ -64,16 +64,15 @@
   # Hyprland setup
 
   programs.hyprland = {
-	enable = true;
-	xwayland.enable = true;
+    enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+    xwayland.enable = true;
   };
 
   security.polkit.enable = true;
 
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [
-	pkgs.xdg-desktop-portal-hyprland
-  ];
 
   services.gnome.gnome-keyring.enable = true;
 
@@ -125,11 +124,15 @@
 
   security.pam.services.ly.fprintAuth = false;
 
+  # Zram swap 
+  zramSwap.enable = true;
+
   environment.systemPackages = with pkgs; [
     vim
     wget
 	kitty
-	hyprpaper
+	# hyprpaper
+	inputs.hyprpaper.packages.${pkgs.stdenv.hostPlatform.system}.hyprpaper
 	hyprlock 
 	hypridle
 	hyprshot
@@ -142,7 +145,8 @@
 	playerctl 
 	libnotify
 	slurp 
-	
+
+
 	fprintd
 	polkit_gnome
 
@@ -150,6 +154,8 @@
 
 	matugen
 	jq
+
+	firefoxpwa
   ];
 
   environment.pathsToLink = [ "/libexec" ];

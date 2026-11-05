@@ -1,0 +1,24 @@
+{
+  "logo": "nixos.svg",
+  "colors": {
+    "crust": "#13140d",
+    "mantle": "#13140d",
+    "base": "#13140d",
+    "surface0": "#1f2018",
+    "surface1": "#2a2b22",
+    "surface2": "#35352d",
+    "overlay0": "#919283",
+    "text": "#e4e3d6",
+    "subtext0": "#c7c7b7",
+    "subtext1": "#919283",
+    "blue": "#c0ce7e",
+    "red": "#ffb4ab",
+    "peach": "#c5c9a8",
+    "yellow": "#a2d0c3",
+    "green": "#c0ce7e",
+    "lavender": "#c5c9a8",
+    "mauve": "#a2d0c3",
+    "sapphire": "#c0ce7e",
+    "sky": "#c5c9a8"
+  }
+}

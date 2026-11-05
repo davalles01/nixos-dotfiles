@@ -51,14 +51,17 @@ QtObject {
         // 2. Reescribe hyprpaper.conf
         // 3. Ejecuta el script de actualización de colores para Quickshell
         var script = `
-            hyprctl hyprpaper reload ",${fullPath}"
+            #hyprctl hyprpaper reload ",${fullPath}"
             
             cat <<EOF > "${root.confPath}"
 preload = ${fullPath}
 wallpaper = ,${fullPath}
 EOF
 
-            if [ -x "${root.themeScriptPath}" ]; then
+            pkill hyprpaper
+			hyprpaper &
+
+			if [ -x "${root.themeScriptPath}" ]; then
                 "${root.themeScriptPath}" "${fullPath}"
             fi
         `

@@ -135,11 +135,11 @@ PanelWindow {
                         delegate: Text {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            opacity: model.month === parent.month ? 1.0 : 0.3
+                            opacity: model.month === parent.month ? 1.0 : 0.5
                             text: model.day
-                            font.pixelSize: 11
+                            font.pixelSize: 12
                             font.bold: model.today
-                            color: model.today ? Theme.colors.crust : Theme.colors.text
+                            color: model.today ? Theme.colors.base : Theme.colors.text
 
                             Rectangle {
                                 anchors.fill: parent

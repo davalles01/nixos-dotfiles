@@ -82,15 +82,13 @@ in
 	catppuccin-gtk
 
 	quickshell
-    qt6Packages.qtdeclarative
+    qt6Packages.qtwayland
 
 	xfce.exo
 
 	blueman
 
 	qview
-
-	firefoxpwa
   ];
 
   home.pointerCursor = {
